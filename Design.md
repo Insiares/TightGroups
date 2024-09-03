@@ -162,7 +162,7 @@ As a certain SO post encounter during my research justly put it:
 > Your File system is a type of databae that is optimized to store files.
 A SQLite or MariaDB instance will be plenty to cover application data and parameters.
 
-![database_schema](static/schema.png)
+![database_schema](Database/static/schema.png)
 
 ### File server
 

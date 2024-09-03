@@ -4,10 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 from datetime import datetime
 
-DATABASE_URL = "mysql+pymysql://user:password@localhost/dbname"
 
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 class User(Base):
@@ -61,4 +58,6 @@ class Score(Base):
     
     image = relationship("Image", back_populates="scores")
 
-Base.metadata.create_all(bind=engine)
+def ini_db(DATABASE_URL):
+    engine = create_engine(DATABASE_URL)
+    Base.metadata.create_all(bind=engine)

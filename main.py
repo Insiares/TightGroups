@@ -2,17 +2,19 @@
 import streamlit as st
 import requests
 
-backend_url = "http://localhost:8000"
+backend_url = "http://0.0.0.0:8000"
 
 st.title("Test Front-End for Sports Shooter App")
-
+headers = {"Content-Type": "application/json"}
 # Create User
 st.header("Create User")
 username = st.text_input("Username")
 email = st.text_input("Email")
 password = st.text_input("Password", type="password")
-if st.button("Create User"):
-    response = requests.post(f"{backend_url}/users/", data={"username": username, "email": email, "password": password})
+if st.button("Create User"): 
+    payload = {"username": username, "email": email, "password": password}
+    print(payload)
+    response = requests.post(f"{backend_url}/users/", json=payload, headers = headers)
     st.write(response.json())
 
 # Create Setup
@@ -23,7 +25,7 @@ ammo = st.text_input("Ammo")
 position = st.text_input("Position")
 drills = st.text_input("Drills")
 if st.button("Create Setup"):
-    response = requests.post(f"{backend_url}/setups/", data={"user_id": user_id_setup, "gear": gear, "ammo": ammo, "position": position, "drills": drills})
+    response = requests.post(f"{backend_url}/setups/", json={"user_id": user_id_setup, "gear": gear, "ammo": ammo, "position": position, "drills": drills})
     st.write(response.json())
 
 # Upload Image
@@ -48,4 +50,4 @@ st.header("List User Setups")
 user_id_setups = st.number_input("User ID for Setups", step=1, key="user_id_setups")
 if st.button("List Setups"):
     response = requests.get(f"{backend_url}/setups/{user_id_setups}/")
-    st.write(response.json
+    st.write(response.json())
