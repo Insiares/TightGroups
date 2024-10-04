@@ -23,33 +23,28 @@ def show_image(image):
 image = cv2.imread('./images_reference/cible_edge_case_cropped.jpg', cv2.IMREAD_COLOR)
 
 # Resize to a standard size if needed
-image = cv2.resize(image, (800, 800))
-
+image = cv2.resize(image, (640, 640))
+image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+image = cv2.GaussianBlur(image, (3,3), 0, 0, cv2.BORDER_DEFAULT)
 # Apply deconvolution
-deconvolved_image = deconvolution(image)
 
 # Convert to grayscale
-gray =  deconvolved_image
-
+print(type(image))
+print(image.shape)
 # Use adaptive thresholding
-adaptive_thresh = cv2.adaptiveThreshold(gray, 
-                                        255, 
-                                        cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
-                                        cv2.THRESH_BINARY_INV, 
-                                        11, 2)
 
 # Canny edge detection
-edges = cv2.Canny(gray, 100, 200)
+edges = cv2.Canny(image,80,80*3,3)
 show_image(edges)
 # Morphological opening to clean up edges
 kernel = np.ones((3, 3), np.uint8)
 opening = cv2.morphologyEx(edges, cv2.MORPH_OPEN, kernel, iterations=2)
 show_image(opening)
 # Background area (dilation)
-sure_bg = cv2.dilate(opening, kernel, iterations=3)
+sure_bg = cv2.dilate(edges, kernel, iterations=3)
 show_image(sure_bg)
 # Finding sure foreground area using distance transform
-dist_transform = cv2.distanceTransform(opening, cv2.DIST_L2, 5)
+dist_transform = cv2.distanceTransform(edges, cv2.DIST_L2, 5)
 _, sure_fg = cv2.threshold(dist_transform, 0.7 * dist_transform.max(), 255, 0)
 show_image(sure_fg)
 # Finding unknown region (areas we aren't sure if it's background or foreground)
@@ -64,9 +59,10 @@ markers = markers + 1
 
 # Mark the unknown regions as zero
 markers[unknown == 255] = 0
-
 # Apply the watershed algorithm
-markers = cv2.watershed(gray, markers)
+print(type(markers))
+print(markers.shape)
+markers = cv2.watershed(image, markers)
 
 # Mark boundaries with red
 image[markers == -1] = [0, 0, 255]

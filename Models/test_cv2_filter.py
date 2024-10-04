@@ -37,11 +37,11 @@ gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 show_image(gray)
 # binary threshold to highlight bright areas , should test other values
 #_, thresh = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY)
-blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+blurred = cv2.GaussianBlur(gray, (9, 9), 2)
 show_image(blurred)
 circles = cv2.HoughCircles(blurred, 
                            cv2.HOUGH_GRADIENT, dp=1.2, minDist=20,
-                           param1=50, param2=15, minRadius=1, maxRadius=15)
+                           param1=50, param2=15, minRadius=5, maxRadius=20)
 
 dominant_color = most_frequent_color(image)
 print(f"Dominant color: {dominant_color}")
