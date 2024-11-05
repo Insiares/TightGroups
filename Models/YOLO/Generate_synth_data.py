@@ -22,12 +22,19 @@ def generate_target_image_with_labels(reference_image,image_size,image_id, num_i
 
     
     impact_coords = []  # List to store impact coordinates for labeling
-    
+    # Random color from white to beige
+    color_r = random.randint(210,255)
+    color_g = random.randint(180,255)
+    color_b = random.randint(140,255)
+    color = (color_r, color_g, color_b)
+
+
     # Draw bullet impacts as circles on the image
     for _ in range(num_impacts):
         # random impact in the 10 zone
-        x = random.randint( (image_size[0]//2)-(image_size[0]//10) , (image_size[0]//2)+(image_size[0]//10) )
-        y = random.randint( (image_size[1]//2)-(image_size[1]//10) , (image_size[1]//2)+(image_size[1]//10) )
+        reduced_coefficient = 20
+        x = random.randint( (image_size[0]//2)-(image_size[0]//reduced_coefficient) , (image_size[0]//2)+(image_size[0]//reduced_coefficient) )
+        y = random.randint( (image_size[1]//2)-(image_size[1]//reduced_coefficient) , (image_size[1]//2)+(image_size[1]//reduced_coefficient) )
         impact_coords.append((x, y))
         
         #Random shape
@@ -35,16 +42,13 @@ def generate_target_image_with_labels(reference_image,image_size,image_id, num_i
         rx = int(bullet_radius * shape_variation * random.uniform(0.9,1.1))
         ry = int(bullet_radius * shape_variation * random.uniform(0.9,1.1))
 
-        # Random color from white to beige
-        color_variation = random.randint(0,40)
-        color = (color_variation, color_variation, color_variation//2)
-        # Draw the impact
+                # Draw the impact
         draw.ellipse((x - rx, y - ry, 
                       x + rx, y + ry), fill=color)
 
         #blur
-        image = image.filter(ImageFilter.GaussianBlur(radius=random.uniform(0.5,1.5)))
-    
+    image = image.filter(ImageFilter.GaussianBlur(radius=random.uniform(0.5,1.5)))
+
     # Save the image
     image_path = os.path.join(output_dir, f"target_{image_id}.jpg")
     image.save(image_path)
