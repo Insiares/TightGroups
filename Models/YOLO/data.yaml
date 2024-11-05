@@ -1,0 +1,8 @@
+# YOLO TRAINING
+
+train: /home/insia/Documents/Projects/TightGroups/Models/YOLO/synth_dataset/train
+val: /home/insia/Documents/Projects/TightGroups/Models/YOLO/synth_dataset/val
+
+nc : 1
+
+names: ["impact"]
