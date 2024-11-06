@@ -1,7 +1,7 @@
 # YOLO TRAINING
 
-train: /home/insia/Documents/Projects/TightGroups/Models/YOLO/synth_dataset/train
-val: /home/insia/Documents/Projects/TightGroups/Models/YOLO/synth_dataset/val
+train: /home/insia/Documents/Projects/TightGroups/Models/YOLO/synth_dataset_v2/train
+val: /home/insia/Documents/Projects/TightGroups/Models/YOLO/synth_dataset_v2/val
 
 nc : 1
 

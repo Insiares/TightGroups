@@ -3,33 +3,33 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 
-model = YOLO("/home/insia/Documents/Projects/TightGroups/runs/detect/train3/weights/best.pt")
+model = YOLO("/home/insia/Documents/Projects/TightGroups/runs/detect/train16/weights/best.pt")
 #model = YOLO("yolo11n.pt")
 
 #test 
-#input_image = "/home/insia/Documents/Projects/TightGroups/Models/YOLO/synth_dataset/val/target_98.jpg"
+input_image = "/home/insia/Documents/Projects/TightGroups/Models/YOLO/synth_dataset/val/target_98.jpg"
 
 #real image
 #input_image = "/home/insia/Documents/Projects/TightGroups/Models/images_reference/cible_edge_case_cropped_resized.jpg"
 
 #Inso image
-# input_image = "/home/insia/Documents/Projects/TightGroups/Models/images_reference/cible_inso.jpg"
+#input_image = "/home/insia/Documents/Projects/TightGroups/Models/images_reference/cible_inso.jpg"
 
 #pistol 10m 
-input_image = "/home/insia/Documents/Projects/TightGroups/Models/images_reference/10m_pistol.jpg"
+#input_image = "/home/insia/Documents/Projects/TightGroups/Models/images_reference/10m_pistol.jpg"
 #easy spread 
 #input_image = "/home/insia/Documents/Projects/TightGroups/Models/test/image_with_circle_9.jpg"
 # apply filter to the image 
 image = cv2.imread(input_image)
-# image = cv2.resize(image, (640, 640))
-# image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+image = cv2.resize(image, (640, 640))
+image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 # # Black and white image and apply gaussian blur
-# gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+ #gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 # image = cv2.blur(gray, (5, 5))
 # treated_image = "/home/insia/Documents/Projects/TightGroups/Models/images_reference/cible_edge_case_cropped_resized_treated.jpg"
 # cv2.imwrite(treated_image, image)
 #results = model(input_image)
-results = model.predict(source=input_image, save = True)
+results = model.predict(source=image, save = True, iou=0.7, augment=True, retina_masks=True, conf=0.45)
 
 # Load the original image
 # Draw predictions on the image

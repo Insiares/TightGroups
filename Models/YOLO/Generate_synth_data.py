@@ -6,8 +6,8 @@ import random
 # Image and target parameters
 image_size = (640, 640)
 target_center = (image_size[0] // 2, image_size[1] // 2)
-bullet_radius = 5  # Radius of bullet hole in pixels
-num_impacts = 10  # Number of bullet impacts per image
+bullet_radius = 5  # may have to randomize it in the future
+num_impacts = 10  # static
 reference_image = Image.open("/home/insia/Documents/Projects/TightGroups/Models/images_reference/C50.jpg")
 # Output directories
 output_train_dir = "synth_dataset/train/"
@@ -21,9 +21,9 @@ def generate_target_image_with_labels(reference_image,image_size,image_id, num_i
     draw = ImageDraw.Draw(image)
 
     
-    impact_coords = []  # List to store impact coordinates for labeling
-    # Random color from white to beige
+    impact_coords = []           
     color_r = random.randint(210,255)
+
     color_g = random.randint(180,255)
     color_b = random.randint(140,255)
     color = (color_r, color_g, color_b)
