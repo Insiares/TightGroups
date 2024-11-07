@@ -127,12 +127,12 @@ def generate_target_image_with_labels(reference_image,image_size,image_id, num_i
     return image_path, label_path
 
 #Train set
-num_images = 2000
+num_images = 5000
 for i in range(num_images):
     generate_target_image_with_labels(reference_image, image_size,i, num_impacts, bullet_radius, output_train_dir)
 
 #VAl set
-num_images = 100
+num_images = 500
 for i in range(num_images):
     generate_target_image_with_labels(reference_image, image_size,i, num_impacts, bullet_radius, output_val_dir)
 print(f"Generated {num_images} synthetic images and labels in YOLO format.")

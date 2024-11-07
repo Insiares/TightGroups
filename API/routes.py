@@ -1,8 +1,8 @@
 import logging
 from Database.Models import ini_db, Base, User, Setup, Image, Score
 from fastapi import FastAPI,APIRouter, Depends, HTTPException, File, UploadFile, status
-from fastapi.security import Oauth2PasswordBearer, Oauth2PasswordRequestForm
-from jose import JWTError, jwt
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+import jwt
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -29,7 +29,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 app = FastAPI()
 
-oauth2_scheme = Oauth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 def authenticate_user(user_name: str, password: str):
     logger.info(f'Authenticating user {user_name}')
@@ -94,7 +94,7 @@ def get_db():
         db.close()
 
 @app.post("/token", response_model=dm.Token)
-async def login_for_access_token(form_data: Oauth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     logging.info(f'Logging in user {form_data.username}')
     user = authenticate_user(form_data.username, form_data.password)
     if not user:
