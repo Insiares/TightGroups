@@ -42,3 +42,10 @@ class Score(BaseModel):
     calculation_date: date
     model_config = ConfigDict(from_attributes=True
                               )
+
+class TokenData(BaseModel):
+    username: Optional[str] = None
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str

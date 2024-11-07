@@ -4,6 +4,31 @@ import requests
 
 backend_url = "http://0.0.0.0:8000"
 
+def login(username : str, password : str):
+    payload = {"username": username, "password": password}
+    response = requests.post(f"{backend_url}/token", json=payload)
+    if response.status_code == 200:
+        return response.json()["access_token"]
+    else : 
+        st.error("Login failed!")
+        return None
+
+# session state for auth token
+if "token" not in st.session_state:
+    st.session_state.token = None
+
+# login form if not already logged in 
+if st.session_state.token is None:
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
+    if st.button("Login"):
+        token = login(username, password)
+        if token is not None:
+            st.session_state.token = token
+            st.success("Login successful!")
+else: 
+    st.write(f"Logged in as {st.session_state.token}")
+
 st.title("Test Front-End for Sports Shooter App")
 headers = {"Content-Type": "application/json"}
 # Create User
