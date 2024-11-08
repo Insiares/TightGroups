@@ -1,6 +1,15 @@
 
 import streamlit as st
 import requests
+import logging
+import base64
+from io import BytesIO
+from PIL import Image
+
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 
 backend_url = "http://0.0.0.0:8000"
 
@@ -14,9 +23,36 @@ def login(username : str, password : str):
         st.error("Login failed!")
         return None
 
-# session state for auth token
-if "token" not in st.session_state:
+# TODO : send to components lib
+def convert_base64_to_bytesIO(image_base64):
+    image_bytes = base64.b64decode(image_base64)
+    image_buffer = io.BytesIO()
+    image = Image.open(image_bytes)
+    image.save(image_buffer, format='JPEG'
+               )
+    image_buffer.seek(0)
+    return image_buffer
+
+def image_base64_to_buffer(image_base64):
+    image_buffer = convert_base64_to_bytesIO(image_base64)
+    image = Image.open(image_buffer)
+
+    if image.mode == 'RGBA':
+        image = image.convert('RGB')
+
+    img_byte_arr = io.BytesIO()
+    image.save(img_byte_arr, format='JPEG')
+    img_byte_arr.seek(0)
+
+    return img_byte_arr
+
+if st.button("session"):
+    for k,v in st.session_state.items():
+        st.write(f"{k}: {v}")
+    
+if "token" not in st.session_state.keys():
     st.session_state.token = None
+    logger.info("Token initiated")
 
 # login form if not already logged in 
 if st.session_state.token is None:
@@ -26,8 +62,9 @@ if st.session_state.token is None:
         token = login(username, password)
         if token is not None:
             st.session_state.token = token
+            logger.info(f"Token assigned for {username}")
             st.success("Login successful!")
-            st.experimental_rerun()
+            st.rerun()
             
     st.header("Create User")
     username = st.text_input("New_Username")
@@ -42,8 +79,7 @@ if st.session_state.token is None:
         st.write(response.json())
 
 
-else: 
-    st.write(f"Logged in as {st.session_state.token}")
+else:
 
     st.title("Test Front-End for Sports Shooter App")
     headers = {"Content-Type": "application/json"}
@@ -65,8 +101,16 @@ else:
     setup_id = st.number_input("Setup ID", step=1)
     uploaded_file = st.file_uploader("Choose an image...", type="jpg")
     if st.button("Upload Image") and uploaded_file is not None:
-        files = {"file": uploaded_file.getvalue()}
+        img = uploaded_file.getvalue(
+        )
+        #logger.info(f"Img get value : {type(img)}")
+        img_b64 = base64.b64encode(img).decode("utf-8")
+        files = { "file" : (uploaded_file.name, BytesIO(img), "image/jpeg")}
+        payload = {"user_id": user_id_image, "setup_id": setup_id}
+
+
         response = requests.post(f"{backend_url}/upload/?user_id={user_id_image}&setup_id={setup_id}", files=files)
+        #response = requests.post(f"{backend_url}/upload/", json=payload, files = files)
         st.write(response.json())
 
 # List User Images

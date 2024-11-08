@@ -8,7 +8,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from auth import get_password_hash, verify_password
 import datamodels as dm
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+import shutil
 router = APIRouter()
 
 #log config
@@ -63,7 +64,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
             raise credentials_exception
         token_data = dm.TokenData(username=username)
         logger.info(f'Token sub found: {username}')
-    except JWTError as e:
+    except Exception as e: # lazy, TODO : add jwt specific exceptions
         logger.error(f'Error decoding token: {e}')
         raise credentials_exception
     user = get_user(token_data.username)
@@ -75,9 +76,9 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
     if expires_delta:   
-        expire = datetime.utcnow() + expires_delta
+        expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
+        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     logger.debug(f'JWT Token created for {data}')
@@ -139,9 +140,15 @@ async def get_setups(user_id: int, db: Session = Depends(get_db)):
 
 @app.post("/upload/")
 async def upload_image( user_id: int, setup_id: int, file: UploadFile = File(...),db: Session = Depends(get_db)):
-    file_path = f"images/{file.filename}"
+    # logger.info("bonjour")    
+    file_path = f"API/images/{file.filename}"
     with open(file_path, "wb") as image_file:
-        image_file.write(await file.read())
+       logger.info(f"Saving image to {file_path}")
+        
+       shutil.copyfileobj(file.file, image_file)
+
+
+        #image_file.write(await file.read())
     image = Image(user_id=user_id, setup_id=setup_id, file_path=file_path)
     db.add(image)
     db.commit()
