@@ -25,6 +25,24 @@ class Setup(BaseModel):
     model_config = ConfigDict(from_attributes=True
                               )
 
+class Ammo(BaseModel):
+    id : Optional[int] = None
+    name: str
+    manufacturer: str
+    caliber: str
+    weight: float
+    weight_unit: str
+    V_0: float
+    V_0_unit: str
+    CB1: float
+    CB2: float
+    model_config = ConfigDict(from_attributes=True
+                              )
+class Seance(BaseModel):
+    id : Optional[int] = None
+    user_id: int
+    model_config = ConfigDict(from_attributes=True
+                              )
 
 class Image(BaseModel):
     id : Optional[int] = None

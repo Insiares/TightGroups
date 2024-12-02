@@ -1,4 +1,3 @@
-import logging
 from Database.Models import ini_db, Base, User, Setup, Image, Score
 from fastapi import FastAPI,APIRouter, Depends, HTTPException, File, UploadFile, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -11,11 +10,10 @@ import datamodels as dm
 from datetime import datetime, timedelta, timezone
 import shutil
 router = APIRouter()
-
+from loguru import logger
 #log config
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger.add("routes_logs.log")
 #JWT config
 
 SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
@@ -94,9 +92,23 @@ def get_db():
     finally:
         db.close()
 
+
+def check_ammo(db : Session = Depends(get_db), ammo_name : str = ""):
+    
+    existing_ammo = db.query(dm.Ammo).filter(Ammo.name == ammo_name).first()
+
+    if existing_ammo:
+        return existing_ammo
+
+    new_ammo = dm.Ammo(name=ammo_name)
+    db.add(new_ammo)
+    db.commit()
+    db.refresh(new_ammo)
+    return new_ammo
+
 @app.post("/token", response_model=dm.Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    logging.info(f'Logging in user {form_data.username}')
+    logger.info(f'logger in user {form_data.username}')
     user = authenticate_user(form_data.username, form_data.password)
     if not user:
         logger.warning(f'User {form_data.username} failed login')
@@ -109,7 +121,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
-    logging.info(f'User {form_data.username} logged in successfully')
+    logger.info(f'User {form_data.username} logged in successfully')
     return {"access_token": access_token, "token_type": "bearer"}
 
 @app.get("/users/me")
@@ -127,11 +139,18 @@ async def create_user(user : dm.UserCreate, db: Session = Depends(get_db)):
 
 @app.post("/setups/", response_model=dm.Setup)
 async def create_setup(setup : dm.Setup, db: Session = Depends(get_db)):
-    setup = Setup(user_id=setup.user_id, gear=setup.gear, ammo=setup.ammo, position=setup.position, drills=setup.drills)
-    db.add(setup)
-    db.commit()
-    db.refresh(setup)
-    return setup
+    try : 
+        ammo = check_ammo(setup.ammo)
+        setup = Setup(user_id=setup.user_id, gear=setup.gear, ammo=setup.ammo, position=setup.position, drills=setup.drills)
+        db.add(setup)
+        db.commit()
+        db.refresh(setup)
+        return setup
+
+    except Exception as e:
+        logger.error(f'Error creating setup: {e}')
+        raise e
+
 
 @app.get("/setups/{user_id}/")
 async def get_setups(user_id: int, db: Session = Depends(get_db)):
@@ -157,7 +176,8 @@ async def upload_image( user_id: int, setup_id: int, file: UploadFile = File(...
 
 @app.get("/users/{user_id}/images/")
 async def get_user_images(user_id: int, db: Session = Depends(get_db)):
-    images = db.query(Image).filter(Image.user_id == user_id).all()
+    logger.debug(f"Getting images for user {user_id}")
+    images = db.query(Image).join(Setup).filter(Setup.user_id == user_id).all()
     return images
 
 if __name__ == "__main__":

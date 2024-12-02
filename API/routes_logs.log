@@ -1,0 +1,14 @@
+2024-12-02 14:35:00.186 | INFO     | routes:login_for_access_token:111 - logger in user Robert
+2024-12-02 14:35:00.186 | INFO     | routes:authenticate_user:34 - Authenticating user Robert
+2024-12-02 14:35:00.360 | INFO     | routes:authenticate_user:42 - User Robert authenticated successfully
+2024-12-02 14:35:00.361 | DEBUG    | routes:create_access_token:82 - JWT Token created for {'sub': 'Robert'}
+2024-12-02 14:35:00.361 | INFO     | routes:login_for_access_token:124 - User Robert logged in successfully
+2024-12-02 14:50:02.379 | DEBUG    | routes:get_user_images:179 - Getting images for user 1
+2024-12-02 14:50:02.443 | DEBUG    | routes:get_user_images:179 - Getting images for user 1
+2024-12-02 14:59:38.097 | INFO     | routes:login_for_access_token:111 - logger in user Insia
+2024-12-02 14:59:38.097 | INFO     | routes:authenticate_user:34 - Authenticating user Insia
+2024-12-02 14:59:38.266 | INFO     | routes:authenticate_user:42 - User Insia authenticated successfully
+2024-12-02 14:59:38.267 | DEBUG    | routes:create_access_token:82 - JWT Token created for {'sub': 'Insia'}
+2024-12-02 14:59:38.267 | INFO     | routes:login_for_access_token:124 - User Insia logged in successfully
+2024-12-02 15:00:07.408 | ERROR    | routes:create_setup:151 - Error creating setup: 'str' object has no attribute 'query'
+2024-12-02 15:02:57.673 | ERROR    | routes:create_setup:151 - Error creating setup: 'str' object has no attribute 'query'

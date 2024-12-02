@@ -1,15 +1,13 @@
 
 import streamlit as st
 import requests
-import logging
 import base64
 from io import BytesIO
 from PIL import Image
+from loguru import logger
 
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
+logger.add("main_logs.log")
 
 backend_url = "http://0.0.0.0:8000"
 
@@ -72,7 +70,6 @@ if st.session_state.token is None:
     password = st.text_input("New_Password", type="password")
     if st.button("Create User"): 
         payload = {"username": username, "email": email, "password": password}
-        print(payload)
         headers = {"Content-Type": "application/json"}
 
         response = requests.post(f"{backend_url}/users/", json=payload, headers = headers)
