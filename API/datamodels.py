@@ -2,6 +2,7 @@ from pydantic import BaseModel, ConfigDict
 from typing import Optional
 from datetime import date
 
+
 class UserBase(BaseModel):
     username: str
 
@@ -19,7 +20,7 @@ class Setup(BaseModel):
     id : Optional[int] = None
     user_id: int
     gear: str
-    ammo: str
+    ammo: int | str
     position: str
     drills: str
     model_config = ConfigDict(from_attributes=True
@@ -28,26 +29,36 @@ class Setup(BaseModel):
 class Ammo(BaseModel):
     id : Optional[int] = None
     name: str
-    manufacturer: str
-    caliber: str
-    weight: float
-    weight_unit: str
-    V_0: float
-    V_0_unit: str
-    CB1: float
-    CB2: float
+    manufacturer: Optional[str] = None
+    caliber: Optional[str] = None
+    weight: Optional[float]= None
+    weight_unit: Optional[str]= None
+    V_0: Optional[float]= None
+    V_0_unit: Optional[str]= None
+    CB1: Optional[float]= None
+    CB2: Optional[float]= None
     model_config = ConfigDict(from_attributes=True
                               )
+
 class Seance(BaseModel):
     id : Optional[int] = None
     user_id: int
+    # created_at: date
+    temp_C: float
+    wind_speed: float
+    wind_gust: float
+    wind_dir: float
+    pressure: float
+    precipitation: float
+
     model_config = ConfigDict(from_attributes=True
                               )
 
 class Image(BaseModel):
     id : Optional[int] = None
-    user_id: int
+    # user_id: int
     setup_id: int
+    seance_id: int
     file_path: str
     upload_date: date
     model_config = ConfigDict(from_attributes=True
@@ -67,3 +78,4 @@ class TokenData(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+    user_id: int

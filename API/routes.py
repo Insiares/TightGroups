@@ -1,4 +1,4 @@
-from Database.Models import ini_db, Base, User, Setup, Image, Score
+from Database.Models import ini_db, Base, User, Setup, Image, Score, Ammo, Seance
 from fastapi import FastAPI,APIRouter, Depends, HTTPException, File, UploadFile, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 import jwt
@@ -93,23 +93,34 @@ def get_db():
         db.close()
 
 
-def check_ammo(db : Session = Depends(get_db), ammo_name : str = ""):
-    
-    existing_ammo = db.query(dm.Ammo).filter(Ammo.name == ammo_name).first()
+def check_ammo(existing_ammo : dm.Ammo , db : Session = Depends(get_db) ):
+    logger.debug(f"Checking ammo {existing_ammo}, with name {existing_ammo.name}") 
+    searched_ammo = db.query(Ammo).filter(Ammo.name == existing_ammo.name).first()
 
-    if existing_ammo:
-        return existing_ammo
+    if searched_ammo:
+        logger.debug(f"Found existing ammo {searched_ammo.name}")
+        return searched_ammo.id
 
-    new_ammo = dm.Ammo(name=ammo_name)
+    new_ammo = Ammo(name=str(existing_ammo.name))
+
     db.add(new_ammo)
     db.commit()
     db.refresh(new_ammo)
-    return new_ammo
+    new_ammo_id = db.query(Ammo).filter(Ammo.name == existing_ammo.name).first(
+        )
+
+    logger.debug(f"Created new ammo {new_ammo.name}")
+
+    return new_ammo_id.id
 
 @app.post("/token", response_model=dm.Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     logger.info(f'logger in user {form_data.username}')
     user = authenticate_user(form_data.username, form_data.password)
+    logger.info(f"user logged : {user}")
+    logger.debug(f"user type : {type(user)}")
+    logger.debug(f"user id : {user.id}")
+
     if not user:
         logger.warning(f'User {form_data.username} failed login')
         raise HTTPException(
@@ -122,7 +133,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
     logger.info(f'User {form_data.username} logged in successfully')
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {"access_token": access_token, "token_type": "bearer", "user_id": user.id}
 
 @app.get("/users/me")
 async def read_users_me(current_user: dm.User = Depends(get_current_user)):
@@ -137,14 +148,32 @@ async def create_user(user : dm.UserCreate, db: Session = Depends(get_db)):
     db.refresh(user)
     return user
 
+@app.post("/seances/", response_model=dm.Seance)
+async def create_seance(seance : dm.Seance, db: Session = Depends(get_db)):
+    try:
+        seance = Seance(user_id = seance.user_id, temp_C = seance.temp_C, wind_speed = seance.wind_speed, wind_gust = seance.wind_gust, wind_dir = seance.wind_dir, pressure = seance.pressure, precipitation = seance.precipitation)
+        db.add(seance)
+        db.commit()
+        db.refresh(seance)
+        logger.info(f"Created seance {seance.id}")
+        return seance
+    except Exception as e:
+        logger.error(f'Error creating seance: {e}')
+        raise e
+
 @app.post("/setups/", response_model=dm.Setup)
 async def create_setup(setup : dm.Setup, db: Session = Depends(get_db)):
-    try : 
-        ammo = check_ammo(setup.ammo)
-        setup = Setup(user_id=setup.user_id, gear=setup.gear, ammo=setup.ammo, position=setup.position, drills=setup.drills)
+    try :
+        ammo_name = setup.ammo
+        ammo_to_check = Ammo(name=ammo_name)
+        ammo = check_ammo(ammo_to_check, db)
+        logger.debug(f"Ammo recieved : {ammo}")
+        logger.debug(f"Setup : {setup}")
+        setup = Setup(user_id=setup.user_id, gear=setup.gear, ammo=ammo, position=setup.position, drills=setup.drills)
         db.add(setup)
         db.commit()
         db.refresh(setup)
+        logger.info(f"Created setup {setup.id}")
         return setup
 
     except Exception as e:
@@ -157,10 +186,15 @@ async def get_setups(user_id: int, db: Session = Depends(get_db)):
     setups = db.query(Setup).filter(Setup.user_id == user_id).all()
     return setups
 
+@app.get("/gears/{users_id}/")
+async def get_gears(users_id: int, db: Session = Depends(get_db)):
+    gears = db.query(Setup).filter(Setup.user_id == users_id).distinct(Setup.gear)
+    return gears
+
 @app.post("/upload/")
-async def upload_image( user_id: int, setup_id: int, file: UploadFile = File(...),db: Session = Depends(get_db)):
+async def upload_image(image : dm.Image, file: UploadFile = File(...),db: Session = Depends(get_db)):
     # logger.info("bonjour")    
-    file_path = f"API/images/{file.filename}"
+    file_path = f"./images/{file.filename}"
     with open(file_path, "wb") as image_file:
        logger.info(f"Saving image to {file_path}")
         
@@ -168,7 +202,7 @@ async def upload_image( user_id: int, setup_id: int, file: UploadFile = File(...
 
 
         #image_file.write(await file.read())
-    image = Image(user_id=user_id, setup_id=setup_id, file_path=file_path)
+    image = Image(seance_id=image.seance_id, setup_id=image.setup_id, file_path=file_path)
     db.add(image)
     db.commit()
     db.refresh(image)

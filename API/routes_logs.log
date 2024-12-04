@@ -12,3 +12,184 @@
 2024-12-02 14:59:38.267 | INFO     | routes:login_for_access_token:124 - User Insia logged in successfully
 2024-12-02 15:00:07.408 | ERROR    | routes:create_setup:151 - Error creating setup: 'str' object has no attribute 'query'
 2024-12-02 15:02:57.673 | ERROR    | routes:create_setup:151 - Error creating setup: 'str' object has no attribute 'query'
+2024-12-04 10:52:55.474 | INFO     | routes:login_for_access_token:111 - logger in user Insia
+2024-12-04 10:52:55.474 | INFO     | routes:authenticate_user:34 - Authenticating user Insia
+2024-12-04 10:52:55.682 | INFO     | routes:authenticate_user:42 - User Insia authenticated successfully
+2024-12-04 10:52:55.682 | DEBUG    | routes:create_access_token:82 - JWT Token created for {'sub': 'Insia'}
+2024-12-04 10:52:55.682 | INFO     | routes:login_for_access_token:124 - User Insia logged in successfully
+2024-12-04 10:53:16.579 | ERROR    | routes:create_setup:151 - Error creating setup: 'str' object has no attribute 'query'
+2024-12-04 10:55:04.296 | ERROR    | routes:create_setup:151 - Error creating setup: 'Depends' object has no attribute 'query'
+2024-12-04 10:56:26.295 | ERROR    | routes:create_setup:151 - Error creating setup: 'Depends' object has no attribute 'query'
+2024-12-04 10:57:14.274 | ERROR    | routes:create_setup:151 - Error creating setup: Column expression, FROM clause, or other columns clause element expected, got <class 'datamodels.Ammo'>.
+2024-12-04 10:59:12.722 | ERROR    | routes:create_setup:151 - Error creating setup: 8 validation errors for Ammo
+manufacturer
+  Field required [type=missing, input_value={'name': 'RWS Rifle Match'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.9/v/missing
+caliber
+  Field required [type=missing, input_value={'name': 'RWS Rifle Match'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.9/v/missing
+weight
+  Field required [type=missing, input_value={'name': 'RWS Rifle Match'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.9/v/missing
+weight_unit
+  Field required [type=missing, input_value={'name': 'RWS Rifle Match'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.9/v/missing
+V_0
+  Field required [type=missing, input_value={'name': 'RWS Rifle Match'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.9/v/missing
+V_0_unit
+  Field required [type=missing, input_value={'name': 'RWS Rifle Match'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.9/v/missing
+CB1
+  Field required [type=missing, input_value={'name': 'RWS Rifle Match'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.9/v/missing
+CB2
+  Field required [type=missing, input_value={'name': 'RWS Rifle Match'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.9/v/missing
+2024-12-04 11:16:35.223 | ERROR    | routes:create_setup:151 - Error creating setup: 8 validation errors for Ammo
+manufacturer
+  Field required [type=missing, input_value={'name': 'RWS Rifle Match'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.9/v/missing
+caliber
+  Field required [type=missing, input_value={'name': 'RWS Rifle Match'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.9/v/missing
+weight
+  Field required [type=missing, input_value={'name': 'RWS Rifle Match'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.9/v/missing
+weight_unit
+  Field required [type=missing, input_value={'name': 'RWS Rifle Match'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.9/v/missing
+V_0
+  Field required [type=missing, input_value={'name': 'RWS Rifle Match'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.9/v/missing
+V_0_unit
+  Field required [type=missing, input_value={'name': 'RWS Rifle Match'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.9/v/missing
+CB1
+  Field required [type=missing, input_value={'name': 'RWS Rifle Match'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.9/v/missing
+CB2
+  Field required [type=missing, input_value={'name': 'RWS Rifle Match'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.9/v/missing
+2024-12-04 11:26:24.066 | INFO     | routes:login_for_access_token:117 - logger in user Insia
+2024-12-04 11:26:24.066 | INFO     | routes:authenticate_user:34 - Authenticating user Insia
+2024-12-04 11:26:24.283 | INFO     | routes:authenticate_user:42 - User Insia authenticated successfully
+2024-12-04 11:26:24.284 | DEBUG    | routes:create_access_token:82 - JWT Token created for {'sub': 'Insia'}
+2024-12-04 11:26:24.284 | INFO     | routes:login_for_access_token:130 - User Insia logged in successfully
+2024-12-04 11:34:02.499 | ERROR    | routes:create_setup:160 - Error creating setup: 8 validation errors for Ammo
+manufacturer
+  Field required [type=missing, input_value={'name': 'RWS Rifle Match'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.9/v/missing
+caliber
+  Field required [type=missing, input_value={'name': 'RWS Rifle Match'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.9/v/missing
+weight
+  Field required [type=missing, input_value={'name': 'RWS Rifle Match'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.9/v/missing
+weight_unit
+  Field required [type=missing, input_value={'name': 'RWS Rifle Match'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.9/v/missing
+V_0
+  Field required [type=missing, input_value={'name': 'RWS Rifle Match'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.9/v/missing
+V_0_unit
+  Field required [type=missing, input_value={'name': 'RWS Rifle Match'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.9/v/missing
+CB1
+  Field required [type=missing, input_value={'name': 'RWS Rifle Match'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.9/v/missing
+CB2
+  Field required [type=missing, input_value={'name': 'RWS Rifle Match'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.9/v/missing
+2024-12-04 11:34:02.540 | ERROR    | routes:create_setup:160 - Error creating setup: 8 validation errors for Ammo
+manufacturer
+  Field required [type=missing, input_value={'name': 'RWS Rifle Match'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.9/v/missing
+caliber
+  Field required [type=missing, input_value={'name': 'RWS Rifle Match'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.9/v/missing
+weight
+  Field required [type=missing, input_value={'name': 'RWS Rifle Match'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.9/v/missing
+weight_unit
+  Field required [type=missing, input_value={'name': 'RWS Rifle Match'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.9/v/missing
+V_0
+  Field required [type=missing, input_value={'name': 'RWS Rifle Match'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.9/v/missing
+V_0_unit
+  Field required [type=missing, input_value={'name': 'RWS Rifle Match'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.9/v/missing
+CB1
+  Field required [type=missing, input_value={'name': 'RWS Rifle Match'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.9/v/missing
+CB2
+  Field required [type=missing, input_value={'name': 'RWS Rifle Match'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.9/v/missing
+2024-12-04 11:35:18.565 | ERROR    | routes:create_setup:160 - Error creating setup: Class 'datamodels.Ammo' is not mapped
+2024-12-04 11:43:24.312 | ERROR    | routes:create_setup:160 - Error creating setup: Class 'datamodels.Ammo' is not mapped
+2024-12-04 11:53:35.445 | ERROR    | routes:create_setup:163 - Error creating setup: 'NoneType' object has no attribute 'name'
+2024-12-04 11:55:53.201 | DEBUG    | routes:check_ammo:97 - Checking ammo <Database.Models.Ammo object at 0x7799f4963f50>
+2024-12-04 11:55:53.211 | ERROR    | routes:create_setup:163 - Error creating setup: 'NoneType' object has no attribute 'name'
+2024-12-04 11:57:09.007 | DEBUG    | routes:check_ammo:97 - Checking ammo <Database.Models.Ammo object at 0x734b352c02f0>, with name RWS Rifle Match
+2024-12-04 11:57:09.012 | ERROR    | routes:create_setup:163 - Error creating setup: 'NoneType' object has no attribute 'name'
+2024-12-04 11:58:29.058 | DEBUG    | routes:check_ammo:97 - Checking ammo <Database.Models.Ammo object at 0x70f3fdd6bfe0>, with name RWS Rifle Match
+2024-12-04 11:58:29.064 | ERROR    | routes:create_setup:163 - Error creating setup: 'NoneType' object has no attribute 'name'
+2024-12-04 11:59:45.049 | DEBUG    | routes:check_ammo:97 - Checking ammo <Database.Models.Ammo object at 0x72196e970350>, with name RWS Rifle Match
+2024-12-04 11:59:45.085 | DEBUG    | routes:check_ammo:112 - Created new ammo RWS Rifle Match
+2024-12-04 11:59:45.086 | DEBUG    | routes:create_setup:153 - Ammo recieved : 1
+2024-12-04 11:59:45.086 | DEBUG    | routes:create_setup:154 - Setup : id=None user_id=1 gear='CZ 457' ammo='RWS Rifle Match' position='Prone' drills='C50'
+2024-12-04 11:59:45.091 | INFO     | routes:create_setup:159 - Created setup 1
+2024-12-04 15:15:26.452 | INFO     | routes:upload_image:177 - Saving image to ./images/cible_edge_case_cropped.jpg
+2024-12-04 15:34:33.989 | INFO     | routes:login_for_access_token:118 - logger in user Insia
+2024-12-04 15:34:33.989 | INFO     | routes:authenticate_user:34 - Authenticating user Insia
+2024-12-04 15:34:34.192 | INFO     | routes:authenticate_user:42 - User Insia authenticated successfully
+2024-12-04 15:34:34.192 | INFO     | routes:login_for_access_token:120 - user logged : <Database.Models.User object at 0x7e96f2401160>
+2024-12-04 15:34:34.192 | DEBUG    | routes:login_for_access_token:121 - user type : <class 'Database.Models.User'>
+2024-12-04 15:34:34.193 | DEBUG    | routes:create_access_token:82 - JWT Token created for {'sub': 'Insia'}
+2024-12-04 15:34:34.193 | INFO     | routes:login_for_access_token:134 - User Insia logged in successfully
+2024-12-04 15:35:50.719 | INFO     | routes:login_for_access_token:118 - logger in user insia
+2024-12-04 15:35:50.720 | INFO     | routes:authenticate_user:34 - Authenticating user insia
+2024-12-04 15:35:50.926 | INFO     | routes:authenticate_user:42 - User insia authenticated successfully
+2024-12-04 15:35:50.926 | INFO     | routes:login_for_access_token:120 - user logged : <Database.Models.User object at 0x78d85248ed20>
+2024-12-04 15:35:50.926 | DEBUG    | routes:login_for_access_token:121 - user type : <class 'Database.Models.User'>
+2024-12-04 15:35:50.926 | DEBUG    | routes:login_for_access_token:122 - user id : 1
+2024-12-04 15:35:50.927 | DEBUG    | routes:create_access_token:82 - JWT Token created for {'sub': 'Insia'}
+2024-12-04 15:35:50.927 | INFO     | routes:login_for_access_token:135 - User insia logged in successfully
+2024-12-04 15:37:16.775 | INFO     | routes:login_for_access_token:118 - logger in user Insia
+2024-12-04 15:37:16.775 | INFO     | routes:authenticate_user:34 - Authenticating user Insia
+2024-12-04 15:37:16.980 | WARNING  | routes:authenticate_user:40 - Invalid password for user Insia
+2024-12-04 15:37:16.980 | INFO     | routes:login_for_access_token:120 - user logged : False
+2024-12-04 15:37:16.980 | DEBUG    | routes:login_for_access_token:121 - user type : <class 'bool'>
+2024-12-04 15:37:24.460 | INFO     | routes:login_for_access_token:118 - logger in user Insia
+2024-12-04 15:37:24.460 | INFO     | routes:authenticate_user:34 - Authenticating user Insia
+2024-12-04 15:37:24.630 | INFO     | routes:authenticate_user:42 - User Insia authenticated successfully
+2024-12-04 15:37:24.631 | INFO     | routes:login_for_access_token:120 - user logged : <Database.Models.User object at 0x7c70d76b10d0>
+2024-12-04 15:37:24.631 | DEBUG    | routes:login_for_access_token:121 - user type : <class 'Database.Models.User'>
+2024-12-04 15:37:24.631 | DEBUG    | routes:login_for_access_token:122 - user id : 1
+2024-12-04 15:37:24.631 | DEBUG    | routes:create_access_token:82 - JWT Token created for {'sub': 'Insia'}
+2024-12-04 15:37:24.631 | INFO     | routes:login_for_access_token:135 - User Insia logged in successfully
+2024-12-04 15:38:55.701 | INFO     | routes:login_for_access_token:118 - logger in user Insia
+2024-12-04 15:38:55.702 | INFO     | routes:authenticate_user:34 - Authenticating user Insia
+2024-12-04 15:38:55.911 | INFO     | routes:authenticate_user:42 - User Insia authenticated successfully
+2024-12-04 15:38:55.911 | INFO     | routes:login_for_access_token:120 - user logged : <Database.Models.User object at 0x7f21139f0d70>
+2024-12-04 15:38:55.911 | DEBUG    | routes:login_for_access_token:121 - user type : <class 'Database.Models.User'>
+2024-12-04 15:38:55.912 | DEBUG    | routes:login_for_access_token:122 - user id : 1
+2024-12-04 15:38:55.912 | DEBUG    | routes:create_access_token:82 - JWT Token created for {'sub': 'Insia'}
+2024-12-04 15:38:55.912 | INFO     | routes:login_for_access_token:135 - User Insia logged in successfully
+2024-12-04 15:41:04.148 | INFO     | routes:login_for_access_token:118 - logger in user Insia
+2024-12-04 15:41:04.148 | INFO     | routes:authenticate_user:34 - Authenticating user Insia
+2024-12-04 15:41:04.375 | INFO     | routes:authenticate_user:42 - User Insia authenticated successfully
+2024-12-04 15:41:04.375 | INFO     | routes:login_for_access_token:120 - user logged : <Database.Models.User object at 0x7ab8025f4e30>
+2024-12-04 15:41:04.375 | DEBUG    | routes:login_for_access_token:121 - user type : <class 'Database.Models.User'>
+2024-12-04 15:41:04.375 | DEBUG    | routes:login_for_access_token:122 - user id : 1
+2024-12-04 15:41:04.376 | DEBUG    | routes:create_access_token:82 - JWT Token created for {'sub': 'Insia'}
+2024-12-04 15:41:04.376 | INFO     | routes:login_for_access_token:135 - User Insia logged in successfully
+2024-12-04 15:43:19.490 | INFO     | routes:login_for_access_token:118 - logger in user Insia
+2024-12-04 15:43:19.490 | INFO     | routes:authenticate_user:34 - Authenticating user Insia
+2024-12-04 15:43:19.699 | INFO     | routes:authenticate_user:42 - User Insia authenticated successfully
+2024-12-04 15:43:19.699 | INFO     | routes:login_for_access_token:120 - user logged : <Database.Models.User object at 0x7e03f01b32c0>
+2024-12-04 15:43:19.699 | DEBUG    | routes:login_for_access_token:121 - user type : <class 'Database.Models.User'>
+2024-12-04 15:43:19.699 | DEBUG    | routes:login_for_access_token:122 - user id : 1
+2024-12-04 15:43:19.700 | DEBUG    | routes:create_access_token:82 - JWT Token created for {'sub': 'Insia'}
+2024-12-04 15:43:19.700 | INFO     | routes:login_for_access_token:135 - User Insia logged in successfully

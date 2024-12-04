@@ -16,6 +16,9 @@ def login(username : str, password : str):
     headers = {"Content-Type" : "application/x-www-form-urlencoded"}
     response = requests.post(f"{backend_url}/token", data=payload, headers = headers)
     if response.status_code == 200:
+        # Register user id in session
+        logger.debug(f"response : {response.json()}")
+        st.session_state.user_id = response.json()["user_id"]
         return response.json()["access_token"]
     else : 
         st.error("Login failed!")
@@ -80,11 +83,16 @@ else:
 
     st.title("Test Front-End for Sports Shooter App")
     headers = {"Content-Type": "application/json"}
-# Create User
    # Create Setup
     st.header("Create Setup")
-    user_id_setup = st.number_input("User ID for Setup", step=1)
+    user_id_setup = st.session_state.user_id
+
+    # get all gear existing for that user and provide it in a dropdown, or allow to create a new one
     gear = st.text_input("Gear")
+    if st.button("Get Gear"):
+        response = requests.get(f"{backend_url}/gears/{user_id_setup}/")
+        st.write(response.json())   
+    
     ammo = st.text_input("Ammo")
     position = st.text_input("Position")
     drills = st.text_input("Drills")

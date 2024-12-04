@@ -3,12 +3,12 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 
-model = YOLO("/home/insia/Documents/Projects/TightGroups/runs/detect/train16/weights/best.pt")
-#model = YOLO("yolo11n.pt")
+#model = YOLO("/home/insia/Documents/Projects/TightGroups/runs/detect/train16/weights/best.pt")
+model = YOLO("yolov8n.pt")
 
 #test 
-input_image = "/home/insia/Documents/Projects/TightGroups/Models/YOLO/synth_dataset/val/target_98.jpg"
-
+# input_image = "/home/insia/Documents/Projects/TightGroups/Models/YOLO/synth_dataset/val/target_98.jpg"
+input_image = "/home/insia/Downloads/31161.webp"
 #real image
 #input_image = "/home/insia/Documents/Projects/TightGroups/Models/images_reference/cible_edge_case_cropped_resized.jpg"
 
@@ -42,7 +42,7 @@ for box in results[0].boxes:
     # Draw the bounding box and label
     cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 1)
     label_text = f"{label} {confidence:.2f}"
-    #cv2.putText(image, label_text, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+    cv2.putText(image, label_text, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
 # Display the image with matplotlib
 cv2.imshow("Image", image)
