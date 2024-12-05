@@ -9,8 +9,10 @@ from auth import get_password_hash, verify_password
 import datamodels as dm
 from datetime import datetime, timedelta, timezone
 import shutil
+import os
 router = APIRouter()
 from loguru import logger
+from ml.YOLO_inference import predict_groupsize
 #log config
 
 logger.add("routes_logs.log")
@@ -198,14 +200,14 @@ async def upload_image(image : dm.Image, file: UploadFile = File(...),db: Sessio
     with open(file_path, "wb") as image_file:
        logger.info(f"Saving image to {file_path}")
         
-       shutil.copyfileobj(file.file, image_file)
+       shutil.copyfileobj(file.file, image_file )
 
 
         #image_file.write(await file.read())
     image = Image(seance_id=image.seance_id, setup_id=image.setup_id, file_path=file_path)
     db.add(image)
     db.commit()
-    db.refresh(image)
+    db.refresh(image)   
     return image
 
 @app.get("/users/{user_id}/images/")
@@ -213,6 +215,28 @@ async def get_user_images(user_id: int, db: Session = Depends(get_db)):
     logger.debug(f"Getting images for user {user_id}")
     images = db.query(Image).join(Setup).filter(Setup.user_id == user_id).all()
     return images
+
+@logger.catch
+@app.post("/inference/")
+async def inference(seance_id : int, images_id: int, db: Session = Depends(get_db)):
+    logger.debug(f"Inference for seance {seance_id}")
+    image_path = db.query(Image).filter(Image.id == images_id).first().file_path
+    model_path = "/home/insia/Documents/Projects/TightGroups/runs/detect/train16/weights/best.pt"
+    #extract image name from image_path
+    image_name = image_path.split("/")[-1]
+    outputh_path = os.path.join("./images_treated", image_name)
+    results = predict_groupsize(model_path, image_path, outputh_path)
+    score = Score(image_id = images_id, group_size = results, output_path = outputh_path, calculation_date = datetime.now(timezone.utc))
+    db.add(score)
+    db.commit()
+    db.refresh(score)
+
+    return results
+
+@app.get("scores/{user_id}/")
+async def get_scores(user_id: int, db: Session = Depends(get_db)):
+    scores = db.query(Score).join(Image).join(Setup).join(Seance).filter(Setup.user_id == user_id).all()
+    return scores
 
 if __name__ == "__main__":
     import uvicorn

@@ -68,6 +68,7 @@ class Score(BaseModel):
     image_id: int
     score_value: float
     group_size: float
+    output_path: str
     calculation_date: date
     model_config = ConfigDict(from_attributes=True
                               )

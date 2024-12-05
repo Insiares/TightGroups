@@ -90,8 +90,9 @@ class Score(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     image_id = Column(Integer, ForeignKey("images.id"), nullable=False)
-    score_value = Column(Float)
-    group_size = Column(Float)
+    score_value = Column(Float, nullable=True)
+    group_size = Column(Float, nullable=True)
+    output_path = Column(String(255), nullable=True)
     calculation_date = Column(DateTime, default=datetime.now(timezone.utc))
     
     image = relationship("Image", back_populates="scores")

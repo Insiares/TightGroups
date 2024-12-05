@@ -193,3 +193,35 @@ CB2
 2024-12-04 15:43:19.699 | DEBUG    | routes:login_for_access_token:122 - user id : 1
 2024-12-04 15:43:19.700 | DEBUG    | routes:create_access_token:82 - JWT Token created for {'sub': 'Insia'}
 2024-12-04 15:43:19.700 | INFO     | routes:login_for_access_token:135 - User Insia logged in successfully
+2024-12-05 12:06:10.493 | INFO     | routes:login_for_access_token:118 - logger in user Insia
+2024-12-05 12:06:10.493 | INFO     | routes:authenticate_user:34 - Authenticating user Insia
+2024-12-05 12:06:10.707 | INFO     | routes:authenticate_user:42 - User Insia authenticated successfully
+2024-12-05 12:06:10.707 | INFO     | routes:login_for_access_token:120 - user logged : <Database.Models.User object at 0x7d9c0875dd00>
+2024-12-05 12:06:10.707 | DEBUG    | routes:login_for_access_token:121 - user type : <class 'Database.Models.User'>
+2024-12-05 12:06:10.707 | DEBUG    | routes:login_for_access_token:122 - user id : 1
+2024-12-05 12:06:10.707 | DEBUG    | routes:create_access_token:82 - JWT Token created for {'sub': 'Insia'}
+2024-12-05 12:06:10.707 | INFO     | routes:login_for_access_token:135 - User Insia logged in successfully
+2024-12-05 12:10:51.019 | INFO     | routes:login_for_access_token:118 - logger in user Insia
+2024-12-05 12:10:51.020 | INFO     | routes:authenticate_user:34 - Authenticating user Insia
+2024-12-05 12:10:51.206 | INFO     | routes:authenticate_user:42 - User Insia authenticated successfully
+2024-12-05 12:10:51.206 | INFO     | routes:login_for_access_token:120 - user logged : <Database.Models.User object at 0x7d9c088ab410>
+2024-12-05 12:10:51.207 | DEBUG    | routes:login_for_access_token:121 - user type : <class 'Database.Models.User'>
+2024-12-05 12:10:51.207 | DEBUG    | routes:login_for_access_token:122 - user id : 1
+2024-12-05 12:10:51.207 | DEBUG    | routes:create_access_token:82 - JWT Token created for {'sub': 'Insia'}
+2024-12-05 12:10:51.207 | INFO     | routes:login_for_access_token:135 - User Insia logged in successfully
+2024-12-05 12:11:19.391 | INFO     | routes:login_for_access_token:118 - logger in user Insia
+2024-12-05 12:11:19.392 | INFO     | routes:authenticate_user:34 - Authenticating user Insia
+2024-12-05 12:11:19.613 | INFO     | routes:authenticate_user:42 - User Insia authenticated successfully
+2024-12-05 12:11:19.613 | INFO     | routes:login_for_access_token:120 - user logged : <Database.Models.User object at 0x7d9c0875e870>
+2024-12-05 12:11:19.613 | DEBUG    | routes:login_for_access_token:121 - user type : <class 'Database.Models.User'>
+2024-12-05 12:11:19.613 | DEBUG    | routes:login_for_access_token:122 - user id : 1
+2024-12-05 12:11:19.614 | DEBUG    | routes:create_access_token:82 - JWT Token created for {'sub': 'Insia'}
+2024-12-05 12:11:19.614 | INFO     | routes:login_for_access_token:135 - User Insia logged in successfully
+2024-12-05 17:01:20.688 | INFO     | routes:login_for_access_token:120 - logger in user Insia
+2024-12-05 17:01:20.689 | INFO     | routes:authenticate_user:36 - Authenticating user Insia
+2024-12-05 17:01:20.951 | INFO     | routes:authenticate_user:44 - User Insia authenticated successfully
+2024-12-05 17:01:20.951 | INFO     | routes:login_for_access_token:122 - user logged : <Database.Models.User object at 0x7971dbbe7d40>
+2024-12-05 17:01:20.951 | DEBUG    | routes:login_for_access_token:123 - user type : <class 'Database.Models.User'>
+2024-12-05 17:01:20.951 | DEBUG    | routes:login_for_access_token:124 - user id : 1
+2024-12-05 17:01:20.951 | DEBUG    | routes:create_access_token:84 - JWT Token created for {'sub': 'Insia'}
+2024-12-05 17:01:20.952 | INFO     | routes:login_for_access_token:137 - User Insia logged in successfully

@@ -3,12 +3,12 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 
-#model = YOLO("/home/insia/Documents/Projects/TightGroups/runs/detect/train16/weights/best.pt")
-model = YOLO("yolov8n.pt")
+model = YOLO("/home/insia/Documents/Projects/TightGroups/runs/detect/train16/weights/best.pt")
+#model = YOLO("yolov8n.pt")
 
 #test 
-# input_image = "/home/insia/Documents/Projects/TightGroups/Models/YOLO/synth_dataset/val/target_98.jpg"
-input_image = "/home/insia/Downloads/31161.webp"
+input_image = "/home/insia/Documents/Projects/TightGroups/Models/YOLO/synth_dataset/val/target_98.jpg"
+#input_image = "/home/insia/Downloads/31161.webp"
 #real image
 #input_image = "/home/insia/Documents/Projects/TightGroups/Models/images_reference/cible_edge_case_cropped_resized.jpg"
 
@@ -33,25 +33,32 @@ results = model.predict(source=image, save = True, iou=0.7, augment=True, retina
 
 # Load the original image
 # Draw predictions on the image
+max_x = 0
+max_y = 0
+min_x = 640
+min_y = 480
 for box in results[0].boxes:
     # Extract box coordinates
     x1, y1, x2, y2 = map(int, box.xyxy[0].tolist())
     confidence = box.conf[0]
     label = results[0].names[int(box.cls[0])]  # Get class name from model's names list
-    
+    max_x = max(max_x, x2)
+    max_y = max(max_y, y2)
+    min_x = min(min_x, x1)
+    min_y = min(min_y, y1)
     # Draw the bounding box and label
     cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 1)
     label_text = f"{label} {confidence:.2f}"
     cv2.putText(image, label_text, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-
+group_size = max(max_x - min_x, max_y - min_y)
+print(f"GRoup size {group_size}")
 # Display the image with matplotlib
 cv2.imshow("Image", image)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 
-
 '''
-impact_coords = [(box.xyxy[0].item(), box.xyxy[1].item()) for box in results.pred[0]]
+impact_coords = [(box.xyxy[0].item(), box.xyxy[1].item()) for box in results[0].boxes]
 
 
 

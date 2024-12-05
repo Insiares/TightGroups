@@ -578,3 +578,4 @@
 2024-12-04 15:43:19.701 | DEBUG    | __main__:login:20 - response : {'access_token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJJbnNpYSIsImV4cCI6MTczMzMyNTE5OX0.AHizM4LJo68GxgAf6PJ8CFyqD3j6-5NLAnKuVRFqvww', 'token_type': 'bearer', 'user_id': 1}
 2024-12-04 15:43:19.702 | INFO     | __main__:<module>:66 - Token assigned for Insia
 2024-12-04 15:43:19.702 | INFO     | __main__:<module>:66 - Token assigned for Insia
+2024-12-05 09:23:48.365 | INFO     | __main__:<module>:56 - Token initiated
