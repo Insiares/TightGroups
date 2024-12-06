@@ -6,6 +6,7 @@ from loguru import logger
 def predict_groupsize(image_path : str , model_path :str, output_path : str):
 
     model = YOLO(model_path)
+ 
 
     image = cv2.imread(image_path)
     image = cv2.resize(image, (640, 640))
@@ -27,7 +28,7 @@ def predict_groupsize(image_path : str , model_path :str, output_path : str):
         min_x = min(min_x, x1)
         min_y = min(min_y, y1)
         cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 1)
-        label_text = f"{label} {confidence:.2f}"
+        #label_text = f"{label} {confidence:.2f}"
         # cv2.putText(image, label_text, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
     group_size = max(max_x - min_x, max_y - min_y)

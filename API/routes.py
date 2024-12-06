@@ -1,18 +1,20 @@
-from Database.Models import ini_db, Base, User, Setup, Image, Score, Ammo, Seance
-from fastapi import FastAPI,APIRouter, Depends, HTTPException, File, UploadFile, status
+from API.Database.Models import ini_db, Base, User, Setup, Image, Score, Ammo, Seance
+from fastapi import FastAPI,APIRouter, Depends, HTTPException, File, UploadFile, status, Form
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 import jwt
 from sqlalchemy.orm import Session
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, select
 from sqlalchemy.orm import sessionmaker
-from auth import get_password_hash, verify_password
-import datamodels as dm
+from API.auth import get_password_hash, verify_password
+import API.datamodels as dm
 from datetime import datetime, timedelta, timezone
 import shutil
 import os
 router = APIRouter()
 from loguru import logger
-from ml.YOLO_inference import predict_groupsize
+from typing import Annotated
+from API.ml.YOLO_inference import predict_groupsize
+import pandas as pd
 #log config
 
 logger.add("routes_logs.log")
@@ -31,23 +33,37 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 app = FastAPI()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+ini_db(DATABASE_URL)
+
+# Dependency
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 def authenticate_user(user_name: str, password: str):
     logger.info(f'Authenticating user {user_name}')
     user = get_user(user_name)
     if not user:
         logger.warning(f'User {user_name} not found')
-        return False
+        raise HTTPException(status_code=401, detail="Invalid credentials")
     if not verify_password(password, user.password_hash):
         logger.warning(f'Invalid password for user {user_name}')
-        return False
+        raise HTTPException(status_code=401, detail="Invalid Credentials ")
     logger.info(f'User {user_name} authenticated successfully')
     return user
 
 
-def get_user(user_name: str | None):
-    with Session(engine) as session:
-        return session.query(User).filter(User.username == user_name).first()
+def get_user(user_name: str | None ):
+    # query = select(User).filter(User.username == user_name)
+    # logger.debug(type(db))
+    with Session(engine) as db:
+        user = db.query(User).filter(User.username == user_name).first()
+    return user
+
+
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
     logger.info(f'Getting current user token')
@@ -84,15 +100,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     logger.debug(f'JWT Token created for {data}')
     return encoded_jwt
 
-ini_db(DATABASE_URL)
 
-# Dependency
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 def check_ammo(existing_ammo : dm.Ammo , db : Session = Depends(get_db) ):
@@ -163,6 +171,11 @@ async def create_seance(seance : dm.Seance, db: Session = Depends(get_db)):
         logger.error(f'Error creating seance: {e}')
         raise e
 
+@app.get("/seances/{user_id}/")
+async def get_seances(user_id: int, db: Session = Depends(get_db)):
+    seances = db.query(Seance).filter(Seance.user_id == user_id).all()
+    return seances
+
 @app.post("/setups/", response_model=dm.Setup)
 async def create_setup(setup : dm.Setup, db: Session = Depends(get_db)):
     try :
@@ -194,9 +207,10 @@ async def get_gears(users_id: int, db: Session = Depends(get_db)):
     return gears
 
 @app.post("/upload/")
-async def upload_image(image : dm.Image, file: UploadFile = File(...),db: Session = Depends(get_db)):
-    # logger.info("bonjour")    
-    file_path = f"./images/{file.filename}"
+async def upload_image(setup_id: int = Form(...), seance_id: int = Form(...), file: UploadFile = File(...),db: Session = Depends(get_db)):
+    # logger.info("bonjour") 
+    logger.debug(f"uploading image")
+    file_path = f"./API/images/{file.filename}"
     with open(file_path, "wb") as image_file:
        logger.info(f"Saving image to {file_path}")
         
@@ -204,7 +218,7 @@ async def upload_image(image : dm.Image, file: UploadFile = File(...),db: Sessio
 
 
         #image_file.write(await file.read())
-    image = Image(seance_id=image.seance_id, setup_id=image.setup_id, file_path=file_path)
+    image = Image(seance_id=seance_id, setup_id=setup_id, file_path=file_path)
     db.add(image)
     db.commit()
     db.refresh(image)   
@@ -217,26 +231,53 @@ async def get_user_images(user_id: int, db: Session = Depends(get_db)):
     return images
 
 @logger.catch
-@app.post("/inference/")
-async def inference(seance_id : int, images_id: int, db: Session = Depends(get_db)):
+@app.post("/inference/{seance_id}/{image_id}/")
+async def inference(seance_id : int, image_id: int, db: Session = Depends(get_db)):
     logger.debug(f"Inference for seance {seance_id}")
-    image_path = db.query(Image).filter(Image.id == images_id).first().file_path
+    image_path = db.query(Image).filter(Image.id == image_id).first().file_path
     model_path = "/home/insia/Documents/Projects/TightGroups/runs/detect/train16/weights/best.pt"
     #extract image name from image_path
     image_name = image_path.split("/")[-1]
-    outputh_path = os.path.join("./images_treated", image_name)
-    results = predict_groupsize(model_path, image_path, outputh_path)
-    score = Score(image_id = images_id, group_size = results, output_path = outputh_path, calculation_date = datetime.now(timezone.utc))
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    logger.debug(f"Current directory: {current_dir}")
+    input_path = os.path.join(current_dir, os.path.join("images", image_name))
+    outputh_path = os.path.join(current_dir, os.path.join("images_treated", image_name)) # TODO : be less dumb than this
+    logger.debug(f"called predict_groupsize with {model_path}, {input_path}, {outputh_path}")
+    results = predict_groupsize(input_path,model_path, outputh_path)
+    logger.debug(f"model output : {results}")
+    score = Score(image_id = image_id, 
+                  group_size = results, 
+                  calculation_date = datetime.now(timezone.utc))
     db.add(score)
     db.commit()
     db.refresh(score)
 
     return results
 
-@app.get("scores/{user_id}/")
+@app.get("/scores/{user_id}/")
 async def get_scores(user_id: int, db: Session = Depends(get_db)):
-    scores = db.query(Score).join(Image).join(Setup).join(Seance).filter(Setup.user_id == user_id).all()
-    return scores
+    query = f'''
+    SELECT setups.gear 
+          , ammo.name
+          , setups.position
+          , setups.drills
+          , seances.temp_C
+          , seances.wind_speed
+          , seances.pressure
+          , seances.precipitation
+          , seances.created_at
+          , scores.group_size
+    FROM setups
+    JOIN ammo ON setups.ammo = ammo.id
+    JOIN seances ON setups.user_id = seances.user_id
+    JOIN images ON seances.id = images.seance_id
+    JOIN scores ON images.id = scores.image_id
+    WHERE setups.user_id = {user_id}
+    '''                                                                              
+    scores = pd.read_sql_query(query, db.bind, index_col = None)    
+    return scores.to_dict("records")
+
+
 
 if __name__ == "__main__":
     import uvicorn

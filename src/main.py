@@ -14,6 +14,14 @@ if "token" not in st.session_state.keys():
     st.session_state.token = None
     logger.info("Token initiated")
 
+if "user_id" not in st.session_state.keys():
+    st.session_state.user_id = None
+
+if "setup_id" not in st.session_state.keys():
+    st.session_state.setup_id = None
+
+if "seance_id" not in st.session_state.keys():
+    st.session_state.seance_id = None
 
 if st.session_state.token is None:
     pg = st.navigation(pages=[login_page]

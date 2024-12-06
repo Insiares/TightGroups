@@ -1,11 +1,10 @@
-from test_token import regen_token
+from Meteo.test_token import regen_token
 from fastapi import HTTPException
 import requests
 import os 
 from datetime import datetime
 from geopy.geocoders import Nominatim
 from loguru import logger
-
 logger.add("meteo.log")
 
 
@@ -21,10 +20,9 @@ def get_loc(user_input : str = "13800") -> tuple:
     logger.info(f"Location OK from {user_input}")
     return (latitude, longitude)
 
-def get_meteo_data(user_input : str = "13800"):
-    longitude, latitude = get_loc(user_input)
+def get_meteo_data(user_input : str = "13800", dt: str = get_current_time()):
+    latitude, longitude = get_loc(user_input)
     api_key = regen_token()
-    dt = get_current_time()
     return_format = 'json'
     # request_format = 't_2m:C,relative_humidity_2m:p,sfc_pressure:Pa,wind_dir_FL10:d,wind_speed_FL10:kmh,wind_gusts_10m_1h:kmh'
     request_format = 't_2m:C,precip_1h:mm,msl_pressure:hPa,wind_speed_10m:ms,wind_dir_10m:d,wind_gusts_10m_1h:ms,weather_symbol_1h:idx'
@@ -36,7 +34,19 @@ def get_meteo_data(user_input : str = "13800"):
     match response.status_code:
         case 200:
             logger.info("Meteo call sucessful")
-            return response.json()
+            # Extract metrics from response json
+            response = response.json()
+            output = {
+                "temp_C": response['data'][0]['coordinates'][0]['dates'][0]['value'],
+                "precipitation": response['data'][1]['coordinates'][0]['dates'][0]['value'],
+                "pressure": response['data'][2]['coordinates'][0]['dates'][0]['value'],
+                "wind_speed": response['data'][3]['coordinates'][0]['dates'][0]['value'],
+                "wind_dir": response['data'][4]['coordinates'][0]['dates'][0]['value'],
+                "wind_gust": response['data'][5]['coordinates'][0]['dates'][0]['value'],
+                "weather_symbol": response['data'][6]['coordinates'][0]['dates'][0]['value'],
+            }
+            logger.debug(f"Output : {output}")
+            return output
         case _:
             logger.error("Meteo call failed")
             logger.error(f"Response status code: {response.status_code}")

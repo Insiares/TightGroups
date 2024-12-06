@@ -56,11 +56,11 @@ class Seance(BaseModel):
 
 class Image(BaseModel):
     id : Optional[int] = None
-    # user_id: int
     setup_id: int
     seance_id: int
-    file_path: str
-    upload_date: date
+    file_path: Optional[str]
+   #  output_path: Optional[str]
+    upload_date: Optional[date]
     model_config = ConfigDict(from_attributes=True
                               )
 class Score(BaseModel):

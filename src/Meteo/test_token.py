@@ -3,6 +3,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 import os
 from loguru import logger
+import dotenv
 
 logger.add("meteo.log")
 # Replace with your actual username and password
@@ -26,8 +27,9 @@ if __name__ == "__main__":
         
 
 def regen_token():
-    username = os.getenv('meteo_use')
-    password = os.getenv('meteo_pwd')    
+    dotenv.load_dotenv()
+    username = os.getenv('METEO_USERNAME')
+    password = os.getenv('METEO_PWD')    
     logger.debug(f'username : {username} password : {password}') 
     response = requests.get('https://login.meteomatics.com/api/v1/token', auth=HTTPBasicAuth(username, password))
     
