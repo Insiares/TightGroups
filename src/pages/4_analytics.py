@@ -13,8 +13,7 @@ gear_filter = []
 position_filter = []
 start_date = pd.to_datetime("2023-01-01")
 end_date = pd.to_datetime("2025-12-31")
-metrics_container = st.empty()
-plot_container = st.empty()
+
 
 @st.cache_data
 def get_analytics():
@@ -34,17 +33,22 @@ def get_analytics():
         logger.error(f"Error : {e}")
 
 
+# store filtered data in session state 
+
 def filtering_data(df, ammo_filter, gear_filter, position_filter, start_date, end_date):
     logger.debug(f"Filtering data with {ammo_filter}, {gear_filter}, {position_filter}, {start_date}, {end_date}")
     start_date = pd.to_datetime(start_date)
     end_date = pd.to_datetime(end_date)
     df_copied = df.copy()
-    filtered_df = df_copied[(df_copied["name"].isin(ammo_filter)) & (df_copied["gear"].isin(gear_filter)) & (df_copied["position"].isin(position_filter)) & (df_copied["created_at"].between(start_date, end_date))]
+    filt_df = df_copied[(df_copied["name"].isin(ammo_filter)) & (df_copied["gear"].isin(gear_filter)) & (df_copied["position"].isin(position_filter)) & (df_copied["created_at"].between(start_date, end_date))]
   
-    mean_group_size = filtered_df["group_size"].mean()
-    
-    st.write("Historic")
-    filtered_df["created_at"] = pd.to_datetime(filtered_df["created_at"])  # Ensure datetime format
+    mean_group_size = filt_df["group_size"].mean()
+    logger.debug(f"Mean group size inside function: {mean_group_size}")
+    logger.debug(f"length of filtered data : {len(filt_df)}")
+    #st.write("Historic")
+    #filtered_df["created_at"] = pd.to_datetime(filtered_df["created_at"])  # Ensure datetime format
+    return filt_df
+    '''
     chart = (
                 alt.Chart(filtered_df)
                 .mark_line(point=True)
@@ -58,7 +62,8 @@ def filtering_data(df, ammo_filter, gear_filter, position_filter, start_date, en
                     height=400,
                     title="Group Size Over Time"
                 )
-            )
+            )'''
+    '''
     with plot_container:
         with st.container(border = True) :
             st.metric("Mean Group Size", value = f"{mean_group_size:.2f}")
@@ -67,10 +72,11 @@ def filtering_data(df, ammo_filter, gear_filter, position_filter, start_date, en
             st.altair_chart(chart, use_container_width=True)
 
     with st.expander("Details"):
-        st.dataframe(filtered_df, use_container_width=True)
+        st.dataframe(filtered_df, use_container_width=True)'''
 
 
 df = get_analytics()
+logger.debug(f"Length of df : {len(df)}")
 df["created_at"] = pd.to_datetime(df["created_at"])
 
 st.sidebar.header("Filter")
@@ -104,13 +110,15 @@ start_date, end_date = st.sidebar.date_input(
 
 )
 
-# filtering_data(df, ammo_filter, gear_filter, position_filter, start_date, end_date)
-df_copied = df.copy()
-filtered_df = df_copied[(df_copied["name"].isin(ammo_filter)) & (df_copied["gear"].isin(gear_filter)) & (df_copied["position"].isin(position_filter)) & (df_copied["created_at"].between(pd.to_datetime(start_date), pd.to_datetime(end_date)))]
-  
+filtered_df = filtering_data(df, ammo_filter, gear_filter, position_filter, start_date, end_date)
+metrics_container = st.empty()
+plot_container = st.empty()
+# df_copied = df.copy()
+# filtered_df = df_copied[(df_copied["name"].isin(ammo_filter)) & (df_copied["gear"].isin(gear_filter)) & (df_copied["position"].isin(position_filter)) & (df_copied["created_at"].between(pd.to_datetime(start_date), pd.to_datetime(end_date)))]
+#
 mean_group_size = filtered_df["group_size"].mean()
-logger.debug(f"Mean group size : {mean_group_size}")
-logger.debug(f"Filtered df : {filtered_df}")
+logger.debug(f"Mean group size outside function : {mean_group_size}")
+#logger.debug(f"Filtered df : {filtered_df}")
 filtered_df["created_at"] = pd.to_datetime(filtered_df["created_at"])  # Ensure datetime format
 chart = (
             alt.Chart(filtered_df)
