@@ -15,7 +15,7 @@ start_date = pd.to_datetime("2023-01-01")
 end_date = pd.to_datetime("2025-12-31")
 
 
-@st.cache_data
+#@st.cache_data TODO : find a way to add intelligence to the cache timeout/refresh
 def get_analytics():
     try :
         backend_url = Config.BACKEND_URL
@@ -74,9 +74,33 @@ def filtering_data(df, ammo_filter, gear_filter, position_filter, start_date, en
     with st.expander("Details"):
         st.dataframe(filtered_df, use_container_width=True)'''
 
+def create_boxplots(df: pd.DataFrame):
+    box_plot = alt.Chart(df).mark_boxplot(
+        #extent = 'min-max',
+        size = 50,
+        ticks={"color" : "white",
+               "size" : 50},
+        outliers={"color" : "red"},
+        rule={"color" : "white"},
+
+
+    ).encode(
+        x = "id:N",
+        y = "group_size:Q",
+               #color = "id",
+        tooltip = ["group_size", "id"]
+    ).properties(
+        title="Boxplot of Group Size by Setup",
+        width=800,
+        height=400
+    )
+
+    return box_plot
+
 
 df = get_analytics()
 logger.debug(f"Length of df : {len(df)}")
+logger.debug(f"df columns : {df.columns}")
 df["created_at"] = pd.to_datetime(df["created_at"])
 
 st.sidebar.header("Filter")
@@ -111,8 +135,17 @@ start_date, end_date = st.sidebar.date_input(
 )
 
 filtered_df = filtering_data(df, ammo_filter, gear_filter, position_filter, start_date, end_date)
-metrics_container = st.empty()
+
+box_plot = create_boxplots(df)
+metrics_col, boxplot_col = st.columns(2)
+with metrics_col:
+    metrics_container = st.empty()
+with boxplot_col:
+    boxplot_container = st.empty()
+
 plot_container = st.empty()
+
+
 # df_copied = df.copy()
 # filtered_df = df_copied[(df_copied["name"].isin(ammo_filter)) & (df_copied["gear"].isin(gear_filter)) & (df_copied["position"].isin(position_filter)) & (df_copied["created_at"].between(pd.to_datetime(start_date), pd.to_datetime(end_date)))]
 #
@@ -137,6 +170,9 @@ chart = (
 
 with metrics_container:
     st.metric("Mean Group Size", value = f"{mean_group_size:.2f}")
+
+with boxplot_container:
+    st.altair_chart(box_plot, use_container_width=True)
 with plot_container:
 
     st.altair_chart(chart, use_container_width=True)

@@ -257,7 +257,8 @@ async def inference(seance_id : int, image_id: int, db: Session = Depends(get_db
 @app.get("/scores/{user_id}/")
 async def get_scores(user_id: int, db: Session = Depends(get_db)):
     query = f'''
-    SELECT setups.gear 
+    SELECT setups.gear
+          , setups.id
           , ammo.name
           , setups.position
           , setups.drills
@@ -270,7 +271,7 @@ async def get_scores(user_id: int, db: Session = Depends(get_db)):
     FROM setups
     JOIN ammo ON setups.ammo = ammo.id
     JOIN seances ON setups.user_id = seances.user_id
-    JOIN images ON seances.id = images.seance_id
+    JOIN images ON setups.id = images.setup_id
     JOIN scores ON images.id = scores.image_id
     WHERE setups.user_id = {user_id}
     '''                                                                              
