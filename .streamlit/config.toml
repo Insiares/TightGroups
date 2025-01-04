@@ -1,5 +1,39 @@
+# [theme]
+# primaryColor="#39603a"
+# backgroundColor="#545e5c"
+# secondaryBackgroundColor="#565b62"
+# textColor="#262730"
+
+
 [theme]
-primaryColor="#39603a"
-backgroundColor="#545e5c"
-secondaryBackgroundColor="#565b62"
-textColor="#262730"
+# Main colors
+primaryColor = "#89b4fa"  # Catppuccin blue
+backgroundColor = "#1e1e2e"  # Base color
+secondaryBackgroundColor = "#313244"  # Surface0
+textColor = "#cdd6f4"  # Text
+font = "Inter"
+
+# Specific elements
+[theme.button]
+backgroundColor = "#89b4fa"  # Blue
+textColor = "#1e1e2e"  # Base
+hover = "#74c7ec"  # Sky blue
+
+[theme.sidebar]
+backgroundColor = "#181825"  # Darker base
+textColor = "#cdd6f4"  # Text
+secondaryBackgroundColor = "#313244"  # Surface0
+
+[theme.textInput]
+backgroundColor = "#313244"  # Surface0
+textColor = "#cdd6f4"  # Text
+border = "#45475a"  # Surface1
+
+[theme.slider]
+color = "#89b4fa"  # Blue
+
+[server]
+address = "0.0.0.0"
+port = "8501"
+enableCORS = false
+enableXsrfProtection = false
