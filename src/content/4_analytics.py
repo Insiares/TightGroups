@@ -16,7 +16,7 @@ end_date = pd.to_datetime("2025-12-31")
 
 
 #@st.cache_data TODO : find a way to add intelligence to the cache timeout/refresh
-def get_analytics():
+def get_analytics() -> pd.DataFrame:
     try :
         backend_url = Config.BACKEND_URL
         headers = {"Content-Type": "application/json"}
@@ -31,6 +31,7 @@ def get_analytics():
             return pd.DataFrame()
     except Exception as e:
         logger.error(f"Error : {e}")
+        return pd.DataFrame()
 
 
 # store filtered data in session state 
@@ -101,82 +102,86 @@ def create_boxplots(df: pd.DataFrame):
 df = get_analytics()
 logger.debug(f"Length of df : {len(df)}")
 logger.debug(f"df columns : {df.columns}")
-df["created_at"] = pd.to_datetime(df["created_at"])
+if len(df) == 0:
+    st.error("No data found")
+else:
 
-st.sidebar.header("Filter")
-ammo_filter = st.sidebar.multiselect(
-    "Select ammo",
-    options=df["name"].unique(),
-    default=df["name"].unique(),
-    #on_change = filtering_data(df, ammo_filter, gear_filter, position_filter, start_date, end_date)
+    df["created_at"] = pd.to_datetime(df["created_at"])
 
-)
+    st.sidebar.header("Filter")
+    ammo_filter = st.sidebar.multiselect(
+        "Select ammo",
+        options=df["name"].unique(),
+        default=df["name"].unique(),
+        #on_change = filtering_data(df, ammo_filter, gear_filter, position_filter, start_date, end_date)
 
-gear_filter = st.sidebar.multiselect(
-    "Select gear",
-    options=df["gear"].unique(),
-    default=df["gear"].unique(),
-    #on_change = filtering_data
-)
+    )
 
-position_filter = st.sidebar.multiselect(
-    "Select position",
-    options=df["position"].unique(),
-    default=df["position"].unique(),
-    #on_change = filtering_data
-)
+    gear_filter = st.sidebar.multiselect(
+        "Select gear",
+        options=df["gear"].unique(),
+        default=df["gear"].unique(),
+        #on_change = filtering_data
+    )
 
-start_date, end_date = st.sidebar.date_input(
-    "Select Date Range", 
-    value=(df["created_at"].min(), df["created_at"].max()),
+    position_filter = st.sidebar.multiselect(
+        "Select position",
+        options=df["position"].unique(),
+        default=df["position"].unique(),
+        #on_change = filtering_data
+    )
 
-    #on_change = filtering_data
+    start_date, end_date = st.sidebar.date_input(
+        "Select Date Range", 
+        value=(df["created_at"].min(), df["created_at"].max()),
 
-)
+        #on_change = filtering_data
 
-filtered_df = filtering_data(df, ammo_filter, gear_filter, position_filter, start_date, end_date)
+    )
 
-box_plot = create_boxplots(df)
-metrics_col, boxplot_col = st.columns(2)
-with metrics_col:
-    metrics_container = st.empty()
-with boxplot_col:
-    boxplot_container = st.empty()
+    filtered_df = filtering_data(df, ammo_filter, gear_filter, position_filter, start_date, end_date)
 
-plot_container = st.empty()
+    box_plot = create_boxplots(df)
+    metrics_col, boxplot_col = st.columns(2)
+    with metrics_col:
+        metrics_container = st.empty()
+    with boxplot_col:
+        boxplot_container = st.empty()
+
+    plot_container = st.empty()
 
 
 # df_copied = df.copy()
 # filtered_df = df_copied[(df_copied["name"].isin(ammo_filter)) & (df_copied["gear"].isin(gear_filter)) & (df_copied["position"].isin(position_filter)) & (df_copied["created_at"].between(pd.to_datetime(start_date), pd.to_datetime(end_date)))]
 #
-mean_group_size = filtered_df["group_size"].mean()
-logger.debug(f"Mean group size outside function : {mean_group_size}")
+    mean_group_size = filtered_df["group_size"].mean()
+    logger.debug(f"Mean group size outside function : {mean_group_size}")
 #logger.debug(f"Filtered df : {filtered_df}")
-filtered_df["created_at"] = pd.to_datetime(filtered_df["created_at"])  # Ensure datetime format
-chart = (
-            alt.Chart(filtered_df)
-            .mark_line(point=True)
-            .encode(
-                x="created_at:T",
-                y="group_size:Q",
-                tooltip=["created_at", "group_size", "name", "gear"]
+    filtered_df["created_at"] = pd.to_datetime(filtered_df["created_at"])  # Ensure datetime format
+    chart = (
+                alt.Chart(filtered_df)
+                .mark_line(point=True)
+                .encode(
+                    x="created_at:T",
+                    y="group_size:Q",
+                    tooltip=["created_at", "group_size", "name", "gear"]
+                )
+                .properties(
+                    width=800,
+                    height=400,
+                    title="Group Size Over Time"
+                )
             )
-            .properties(
-                width=800,
-                height=400,
-                title="Group Size Over Time"
-            )
-        )
 
-with metrics_container:
-    st.metric("Mean Group Size", value = f"{mean_group_size:.2f}")
+    with metrics_container:
+        st.metric("Mean Group Size", value = f"{mean_group_size:.2f}")
 
-with boxplot_container:
-    st.altair_chart(box_plot, use_container_width=True)
-with plot_container:
+    with boxplot_container:
+        st.altair_chart(box_plot, use_container_width=True)
+    with plot_container:
 
-    st.altair_chart(chart, use_container_width=True)
+        st.altair_chart(chart, use_container_width=True)
 
-with st.expander("Details"):
-    st.dataframe(filtered_df, use_container_width=True)
+    with st.expander("Details"):
+        st.dataframe(filtered_df, use_container_width=True)
 

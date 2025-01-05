@@ -21,20 +21,26 @@ try :
     response = requests.get(f"{backend_url}/setups/{st.session_state.user_id}/", headers=headers)
     setups = response.json()
     logger.info(f"Accessed Setup for user {st.session_state.user_id}")
-    df = pd.DataFrame(setups)
-    edited_df = st.data_editor(df, use_container_width=True,num_rows = "dynamic", column_config={
-                             "gear": st.column_config.TextColumn("Gear"),
-                             "ammo": st.column_config.Column("Ammo"),
-                             "position": st.column_config.TextColumn("Position"),
-                             "drills": st.column_config.TextColumn("Drills"),
-                             "id": st.column_config.Column("ID")
-    })
+    logger.debug(f"Setups : {setups}")
+    logger.debug(f"Setups type : {type(setups)}")
 
-    select_setup = st.selectbox("Select Setup", list(setups)
-                           )
-    st.session_state.setup_id = select_setup["id"]
-    logger.debug(f"Selected setup {st.session_state.setup_id}")
-   # if st.button("Create New Setup"):
+    if len(setups) == 0:
+        st.write("No setups found, create one !")
+    else : 
+        df = pd.DataFrame(setups)
+        edited_df = st.data_editor(df, use_container_width=True,num_rows = "dynamic", column_config={
+                                 "gear": st.column_config.TextColumn("Gear"),
+                                 "ammo": st.column_config.Column("Ammo"),
+                                 "position": st.column_config.TextColumn("Position"),
+                                 "drills": st.column_config.TextColumn("Drills"),
+                                 "id": st.column_config.Column("ID")
+        })
+
+        select_setup = st.selectbox("Select Setup", list(setups)
+                               )
+        st.session_state.setup_id = select_setup["id"]
+        logger.debug(f"Selected setup {st.session_state.setup_id}")
+       # if st.button("Create New Setup"):
 
     with st.form("new_setup", clear_on_submit=True):
         gear = st.text_input("Gear")

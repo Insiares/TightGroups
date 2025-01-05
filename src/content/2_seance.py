@@ -23,14 +23,17 @@ try :
     response = requests.get(f"{backend_url}/seances/{st.session_state.user_id}/", headers=headers)
     seances = response.json()
     logger.info(f"Accessed seance for user {st.session_state.user_id}")
-    df = pd.DataFrame(seances)
-    edited_df = st.dataframe(df, use_container_width=True)
+    if len(seances) == 0:
+        st.error("No seances found")
+    else :
+        df = pd.DataFrame(seances)
+        edited_df = st.dataframe(df, use_container_width=True)
 
-    selected_seance = st.selectbox("Select seance", list(seances))
-    st.session_state.seance_id = selected_seance["id"]
+        selected_seance = st.selectbox("Select seance", list(seances))
+        st.session_state.seance_id = selected_seance["id"]
 
-   # if st.button("Create New seance"):
-    logger.debug(f"Selected seance : {st.session_state.seance_id}")
+       # if st.button("Create New seance"):
+        logger.debug(f"Selected seance : {st.session_state.seance_id}")
     with st.form("new_seance", clear_on_submit=True):
         post_code = st.text_input("Post Code")
         submitted = st.form_submit_button("Submit")
