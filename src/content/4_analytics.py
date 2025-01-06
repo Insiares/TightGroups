@@ -3,7 +3,7 @@ import requests
 from src.config import Config, logger
 import pandas as pd 
 import altair as alt 
-
+import datetime as dt
 
 st.title("Analytics")
 
@@ -14,6 +14,8 @@ position_filter = []
 start_date = pd.to_datetime("2023-01-01")
 end_date = pd.to_datetime("2025-12-31")
 
+if "plot" not in st.session_state.keys():
+    st.session_state.plot = False
 
 #@st.cache_data TODO : find a way to add intelligence to the cache timeout/refresh
 def get_analytics() -> pd.DataFrame:
@@ -41,7 +43,7 @@ def filtering_data(df, ammo_filter, gear_filter, position_filter, start_date, en
     start_date = pd.to_datetime(start_date)
     end_date = pd.to_datetime(end_date)
     df_copied = df.copy()
-    filt_df = df_copied[(df_copied["name"].isin(ammo_filter)) & (df_copied["gear"].isin(gear_filter)) & (df_copied["position"].isin(position_filter)) & (df_copied["created_at"].between(start_date, end_date))]
+    filt_df = df_copied[(df_copied["ammo"].isin(ammo_filter)) & (df_copied["gear"].isin(gear_filter)) & (df_copied["position"].isin(position_filter)) & (df_copied["created_at"].between(start_date, end_date))]
   
     mean_group_size = filt_df["group_size"].mean()
     logger.debug(f"Mean group size inside function: {mean_group_size}")
@@ -86,10 +88,10 @@ def create_boxplots(df: pd.DataFrame):
 
 
     ).encode(
-        x = "id:N",
+        x = "name:N",
         y = "group_size:Q",
                #color = "id",
-        tooltip = ["group_size", "id"]
+        tooltip = ["group_size", "name"]
     ).properties(
         title="Boxplot of Group Size by Setup",
         width=800,
@@ -111,8 +113,8 @@ else:
     st.sidebar.header("Filter")
     ammo_filter = st.sidebar.multiselect(
         "Select ammo",
-        options=df["name"].unique(),
-        default=df["name"].unique(),
+        options=df["ammo"].unique(),
+        default=df["ammo"].unique(),
         #on_change = filtering_data(df, ammo_filter, gear_filter, position_filter, start_date, end_date)
 
     )
@@ -133,7 +135,7 @@ else:
 
     start_date, end_date = st.sidebar.date_input(
         "Select Date Range", 
-        value=(df["created_at"].min(), df["created_at"].max()),
+        value= (dt.date(2023, 1, 1), dt.date(2025, 12, 31))
 
         #on_change = filtering_data
 
@@ -142,7 +144,7 @@ else:
     filtered_df = filtering_data(df, ammo_filter, gear_filter, position_filter, start_date, end_date)
 
     box_plot = create_boxplots(df)
-    metrics_col, boxplot_col = st.columns(2)
+    metrics_col, boxplot_col = st.columns([1,4], vertical_alignment="center")
     with metrics_col:
         metrics_container = st.empty()
     with boxplot_col:
@@ -158,13 +160,20 @@ else:
     logger.debug(f"Mean group size outside function : {mean_group_size}")
 #logger.debug(f"Filtered df : {filtered_df}")
     filtered_df["created_at"] = pd.to_datetime(filtered_df["created_at"])  # Ensure datetime format
+    filtered_df["date"] = filtered_df["created_at"].dt.date
+    # logger.debug(f"agg df : {filtered_df.groupby(['created_at']).mean().reset_index()}")
+    logger.debug(f"date type : {filtered_df['date'].dtype}")
+    logger.debug(f"filtered df head : {filtered_df.head()}")
+    logger.debug(f"group size distinct values : {filtered_df['group_size'].nunique()}")
+    logger.debug(f"grouped df : {filtered_df.groupby("date").agg({"group_size": "mean"}).reset_index()}")
+    logger.debug(f"mean group size on the 2024 12 06 : {filtered_df["group_size"].loc[pd.to_datetime(filtered_df["date"]) == pd.to_datetime('2024-12-29')].mean()}")
     chart = (
-                alt.Chart(filtered_df)
+                alt.Chart(filtered_df.groupby(filtered_df["date"]).agg({"group_size": "mean"}).reset_index())
                 .mark_line(point=True)
                 .encode(
-                    x="created_at:T",
+                    x="date:T",
                     y="group_size:Q",
-                    tooltip=["created_at", "group_size", "name", "gear"]
+                    tooltip=["date", "group_size"] 
                 )
                 .properties(
                     width=800,
@@ -174,7 +183,7 @@ else:
             )
 
     with metrics_container:
-        st.metric("Mean Group Size", value = f"{mean_group_size:.2f}")
+        st.metric("Mean Group Size", value = f"{mean_group_size:.2f}", delta =f"{mean_group_size - df['group_size'].mean():.2f}", delta_color="inverse", border = True)
 
     with boxplot_container:
         st.altair_chart(box_plot, use_container_width=True)
@@ -185,3 +194,28 @@ else:
     with st.expander("Details"):
         st.dataframe(filtered_df, use_container_width=True)
 
+if st.button("Add a custom plot") or st.session_state.plot:
+    st.session_state.plot = True
+    x_axis = st.selectbox("Select X-axis:", options=df.columns)
+    y_axis = st.selectbox("Select Y-axis:", options=df.columns)
+
+# User selects a column to split data into series (optional)
+    split_column = st.selectbox("Select a column to split data (optional):", options=["None"] + list(df.columns))
+
+# Base chart
+    base = alt.Chart(df).mark_point().encode(
+        x=alt.X(x_axis, title=x_axis),
+        y=alt.Y(y_axis, title=y_axis)
+    )
+
+# Add a split if selected
+    if split_column != "None":
+        chart = base.encode(color=alt.Color(split_column, title=split_column))
+    else:
+        chart = base
+
+# Render the chart
+    st.altair_chart(chart.interactive(), use_container_width=True)
+
+    if st.button("Close"):
+        st.session_state.plot = False

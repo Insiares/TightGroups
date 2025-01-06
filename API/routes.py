@@ -3,7 +3,7 @@ from fastapi import FastAPI,APIRouter, Depends, HTTPException, File, UploadFile,
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 import jwt
 from sqlalchemy.orm import Session
-from sqlalchemy import create_engine, select
+from sqlalchemy import create_engine, select, label
 from sqlalchemy.orm import sessionmaker
 from API.auth import get_password_hash, verify_password
 import API.datamodels as dm
@@ -184,7 +184,7 @@ async def create_setup(setup : dm.Setup, db: Session = Depends(get_db)):
         ammo = check_ammo(ammo_to_check, db)
         logger.debug(f"Ammo recieved : {ammo}")
         logger.debug(f"Setup : {setup}")
-        setup = Setup(user_id=setup.user_id, gear=setup.gear, ammo=ammo, position=setup.position, drills=setup.drills)
+        setup = Setup(user_id=setup.user_id, name = setup.name,gear=setup.gear, ammo=ammo, position=setup.position, drills=setup.drills)
         db.add(setup)
         db.commit()
         db.refresh(setup)
@@ -198,8 +198,16 @@ async def create_setup(setup : dm.Setup, db: Session = Depends(get_db)):
 
 @app.get("/setups/{user_id}/")
 async def get_setups(user_id: int, db: Session = Depends(get_db)):
-    setups = db.query(Setup).filter(Setup.user_id == user_id).all()
-    return setups
+    #join ammo table to get ammo name
+    setups = db.query(Setup).add_column(Ammo.name.label("ammo_name")).join(Ammo, Setup.ammo == Ammo.id).filter(Setup.user_id == user_id).all()
+
+    #logger.debug(f"retrieve setup query : {[setup for setup in setups]}")
+    # setups = db.query(Setup).filter(Setup.user_id == user_id).all()
+    result = [{
+    **setup[0].__dict__,  # Setup model attributes
+    'ammo_name': setup[1]  # The additional column
+} for setup in setups]
+    return result
 
 @app.get("/gears/{users_id}/")
 async def get_gears(users_id: int, db: Session = Depends(get_db)):
@@ -230,6 +238,14 @@ async def get_user_images(user_id: int, db: Session = Depends(get_db)):
     images = db.query(Image).join(Setup).filter(Setup.user_id == user_id).all()
     return images
 
+@app.get("/images/{image_id}/")
+async def get_image(image_id: int, db: Session = Depends(get_db)):
+    logger.debug(f"Getting image {image_id}")
+    image = db.query(Image).filter(Image.id == image_id).first()
+    image_treadted_path = image.file_path.replace("images", "images_treated")
+
+    return image_treadted_path
+
 @logger.catch
 @app.post("/inference/{seance_id}/{image_id}/")
 async def inference(seance_id : int, image_id: int, db: Session = Depends(get_db)):
@@ -259,7 +275,7 @@ async def get_scores(user_id: int, db: Session = Depends(get_db)):
     query = f'''
     SELECT setups.gear
           , setups.id
-          , ammo.name
+          , ammo.name AS ammo
           , setups.position
           , setups.drills
           , seances.temp_C
@@ -274,8 +290,30 @@ async def get_scores(user_id: int, db: Session = Depends(get_db)):
     JOIN images ON setups.id = images.setup_id
     JOIN scores ON images.id = scores.image_id
     WHERE setups.user_id = {user_id}
-    '''                                                                              
-    scores = pd.read_sql_query(query, db.bind, index_col = None)    
+    '''                        
+    query_not_dumb = f'''
+
+    SELECT scores.group_size
+            ,setups.id 
+            , setups.gear
+            , ammo.name as ammo
+            , setups.name
+            , setups.position
+            , setups.drills
+            , seances.temp_C
+            , seances.wind_speed
+            , seances.pressure
+            , seances.precipitation
+            , seances.created_at
+
+    FROM scores
+    JOIN images ON images.id = scores.image_id
+    JOIN setups ON images.setup_id = setups.id
+    JOIN ammo ON setups.ammo = ammo.id
+    JOIN seances ON images.seance_id = seances.id
+    WHERE setups.user_id = {user_id}
+    '''
+    scores = pd.read_sql_query(query_not_dumb, db.bind, index_col = None)    
     return scores.to_dict("records")
 
 

@@ -12,8 +12,8 @@ max_group_radius = 200 # Target is ~ 420 px of width, 300px seems fair, but i sh
 num_impacts = 10  # static
 reference_image = Image.open("/home/insia/Documents/Projects/TightGroups/Models/images_reference/C50.jpg")
 # Output directories
-output_train_dir = "synth_dataset_v2/train/"
-output_val_dir = "synth_dataset_v2/val/"
+output_train_dir = "synth_dataset_v3/train/"
+output_val_dir = "synth_dataset_v3/val/"
 os.makedirs(output_train_dir, exist_ok=True)
 os.makedirs(output_val_dir, exist_ok=True)
 
@@ -123,7 +123,11 @@ def generate_target_image_with_labels(reference_image,image_size,image_id, num_i
             width = (2 * bullet_radius) / image_size[0]
             height = (2 * bullet_radius) / image_size[1]
             label_file.write(f"0 {center_x:.6f} {center_y:.6f} {width:.6f} {height:.6f}\n")
-    
+    #add center label
+        label_file.write("1 0.5 0.5 0.01 0.01 \n")
+        #add ring 
+        label_file.write(f"2 0.5 {14/image_size[1]} 0.01 0.01\n")
+ 
     return image_path, label_path
 
 #Train set

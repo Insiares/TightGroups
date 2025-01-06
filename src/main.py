@@ -7,7 +7,7 @@ login_page = st.Page("./content/0_login.py", title = "Login", icon="🔑")
 setup_page = st.Page("./content/1_setup.py", title = "Setup", icon="🔧")
 seance_page = st.Page("./content/2_seance.py", title = "Seance", icon="🎯")
 upload_page = st.Page("./content/3_upload.py", title = "Upload", icon="📸")
-analytics_page = st.Page("./content/5_analytics_v2.py", title = "Analytics", icon="📊")
+analytics_page = st.Page("./content/4_analytics.py", title = "Analytics", icon="📊")
 
 if "token" not in st.session_state.keys():
     st.session_state.token = None
@@ -21,6 +21,12 @@ if "setup_id" not in st.session_state.keys():
 
 if "seance_id" not in st.session_state.keys():
     st.session_state.seance_id = None
+
+if "seance_date" not in st.session_state.keys():
+    st.session_state.seance_date = None
+
+if "setup_name" not in st.session_state.keys():
+    st.session_state.setup_name = None
 
 if st.session_state.token is None:
     pg = st.navigation(pages=[login_page])

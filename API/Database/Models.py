@@ -45,6 +45,7 @@ class Setup(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     gear = Column(String(255))
+    name = Column(String(255))
     ammo = Column(Integer, ForeignKey("ammo.id"), nullable = True)
     position = Column(String(255))
     drills = Column(String(255))

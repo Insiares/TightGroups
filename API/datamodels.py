@@ -19,6 +19,7 @@ class User(UserBase):
 class Setup(BaseModel):
     id : Optional[int] = None
     user_id: int
+    name : str
     gear: str
     ammo: int | str
     position: str
