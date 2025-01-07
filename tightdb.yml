@@ -1,4 +1,4 @@
-location: centralfrance
+location: francecentral
 name: tightdb-container
 properties:
   containers:

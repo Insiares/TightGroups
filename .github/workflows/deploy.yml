@@ -18,6 +18,17 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+    - name : Create db container
+      run: |
+        az container create \
+        --resource-group devia_25 \
+        --file ./tightdb.yml \
+
+    - name : create kuma container
+      run: |
+        az container create \
+        --resource-group devia_25 \
+        --file ./kuma.yml \
 
     - name: Build and push Docker image
       run: |
@@ -34,17 +45,6 @@ jobs:
       run: |
         az container delete --resource-group devia_25 --name tgcontainer --yes
 
-    - name : Create db container
-      run: |
-        az container create \
-        --resource-group devia_25 \
-        --file ./tightdb.yml \
-
-    - name : create kuma container
-      run: |
-        az container create \
-        --resource-group devia_25 \
-        --file ./kuma.yml \
 
     - name: Run new app container
       run: |
