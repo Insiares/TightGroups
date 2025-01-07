@@ -29,22 +29,22 @@ jobs:
         az container create \
         --resource-group devia_25 \
         --file ./kuma.yml \
-
-    - name: Build and push Docker image
-      run: |
-        az acr build --registry tightgroups --image tightgroups:latest .
-
-    - name: Get Container ID
-      id: get_container_id
-      run: |
-        container_id=$(az container list --resource-group devia_25 --query "[?name=='tgcontainer'].{Id:id}" -o tsv)
-        echo "::set-output name=container_id::$container_id"
-
-    - name: Delete existing container
-      if: steps.get_container_id.outputs.container_id != ''
-      run: |
-        az container delete --resource-group devia_25 --name tgcontainer --yes
-
+    #
+    # - name: Build and push Docker image
+    #   run: |
+    #     az acr build --registry tightgroups --image tightgroups:latest .
+    #
+    # - name: Get Container ID
+    #   id: get_container_id
+    #   run: |
+    #     container_id=$(az container list --resource-group devia_25 --query "[?name=='tgcontainer'].{Id:id}" -o tsv)
+    #     echo "::set-output name=container_id::$container_id"
+    #
+    # - name: Delete existing container
+    #   if: steps.get_container_id.outputs.container_id != ''
+    #   run: |
+    #     az container delete --resource-group devia_25 --name tgcontainer --yes
+    #
 
 
     - name: Run new app container
@@ -67,3 +67,4 @@ jobs:
             JWT_SECRET=$JWT_SECRET \
           --cpu 1 \
           --memory 1.5
+          --os-type linux
