@@ -57,7 +57,7 @@ jobs:
       run: |
         az container create \
           --resource-group devia_25 \
-          --name tgcontainer \
+          --name tg-container-group \
           --file ./tightgroups_compose.yml \
           --registry-username tightgroups \
           --registry-password $(az acr credential show --name tightgroups --query passwords[0].value -o tsv) \
