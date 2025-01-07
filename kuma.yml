@@ -13,3 +13,7 @@ properties:
           memoryInGb: 1
   osType: Linux
   restartPolicy: Always
+  ipAddress:
+    type: Public
+    ports:
+    - port: 3001

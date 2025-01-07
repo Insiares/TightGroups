@@ -68,4 +68,5 @@ jobs:
           --cpu 1 \
           --memory 1.5 \
           --os-type Linux \
-          --ports 8000 8501
+          --ports 8000 8501 \
+          --ip-address public
