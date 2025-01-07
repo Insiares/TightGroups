@@ -9,13 +9,10 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
-
+    steps:
     - name: Checkout private repo
       uses: actions/checkout@v2
-  with:
-     repository: Insiares/TightGroups
-     token: ${{ secrets.MY_TOKEN }}
-
+ 
     - name: Login to Azure
       uses: azure/login@v2
       with:
