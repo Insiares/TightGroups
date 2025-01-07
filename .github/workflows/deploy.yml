@@ -67,4 +67,5 @@ jobs:
             JWT_SECRET=$JWT_SECRET \
           --cpu 1 \
           --memory 1.5 \
-          --os-type Linux
+          --os-type Linux \
+          --ports 8000 8501
