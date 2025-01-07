@@ -1,0 +1,10 @@
+location: centralfrance
+name: uptime-kuma-container
+properties:
+  containers:
+  - name: uptime-kuma
+    image: louislam/uptime-kuma:latest
+    ports:
+    - port: 3001
+  osType: Linux
+  restartPolicy: Always
