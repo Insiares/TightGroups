@@ -12,9 +12,7 @@ services:
       MYSQL_PASSWORD: user
     ports:
       - "3306:3306"
-    volumes:
-      - mariadb-data:/var/lib/mysql
-
+ 
   app:
     build:
       context: .

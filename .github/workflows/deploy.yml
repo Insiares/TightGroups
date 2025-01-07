@@ -18,17 +18,17 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name : Create db container
-      run: |
-        az container create \
-        --resource-group devia_25 \
-        --file ./tightdb.yml \
-
-    - name : create kuma container
-      run: |
-        az container create \
-        --resource-group devia_25 \
-        --file ./kuma.yml \
+    # - name : Create db container
+    #   run: |
+    #     az container create \
+    #     --resource-group devia_25 \
+    #     --file ./tightdb.yml \
+    #
+    # - name : create kuma container
+    #   run: |
+    #     az container create \
+    #     --resource-group devia_25 \
+    #     --file ./kuma.yml \
     #
     # - name: Build and push Docker image
     #   run: |
@@ -57,8 +57,8 @@ jobs:
       run: |
         az container create \
           --resource-group devia_25 \
-          --name tgcontainer \
-          --image tightgroups.azurecr.io/tightgroups:latest \
+          # --name tgcontainer \
+          --file ./tightgroups_compose.yml \
           --registry-username tightgroups \
           --registry-password $(az acr credential show --name tightgroups --query passwords[0].value -o tsv) \
           --environment-variables \
@@ -69,6 +69,7 @@ jobs:
             DATABASE_URL=$DATABASE_URL \
           --cpu 1 \
           --memory 1.5 \
-          --os-type Linux \
-          --ports 8000 8501 \
-          --ip-address public
+          # --os-type Linux \
+          # --ports 8000 8501 \
+          # --ip-address public \
+          # --dns-name-label tightgroups
