@@ -55,6 +55,9 @@ jobs:
         JWT_SECRET: ${{ secrets.JWT_SECRET }}
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
       run: |
+
+        az acr login --name tightgroups --username tightgroups --password $(az acr credential show --name tightgroups --query passwords[0].value -o tsv)
+
         az container create \
           --resource-group devia_25 \
           --name tg-container-group \
