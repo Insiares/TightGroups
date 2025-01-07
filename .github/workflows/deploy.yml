@@ -46,18 +46,24 @@ jobs:
         az container delete --resource-group devia_25 --name tgcontainer --yes
 
 
+
     - name: Run new app container
+      env:
+        METEO_USERNAME: ${{ secrets.METEO_USERNAME }}
+        METEO_PASSWORD: ${{ secrets.METEO_PASSWORD }}
+        BACKEND_URL: ${{ secrets.BACKEND_URL }}
+        JWT_SECRET: ${{ secrets.JWT_SECRET }}
       run: |
         az container create \
-        --resource-group devia_25 \
-        --name tgcontainer \
-        --image tightgroups.azurecr.io/tightgroups:latest \
-        --registry-username tightgroups\
-        --registry-password $(az acr credential show --name tightgroups --query passwords[0].value -o tsv) \
-        --environment-variables \
-          "METEO_USERNAME=${{ secrets.METEO_USERNAME }}" \
-          "METEO_PASSWORD=${{ secrets.METEO_PASSWORD }}" \
-          "BACKEND_URL=${{ secrets.BACKEND_URL }}" \
-          "JWT_SECRET=${{ secrets.JWT_SECRET }}" \
-        --cpu 1 \
-        --memory 1.5
+          --resource-group devia_25 \
+          --name tgcontainer \
+          --image tightgroups.azurecr.io/tightgroups:latest \
+          --registry-username tightgroups \
+          --registry-password $(az acr credential show --name tightgroups --query passwords[0].value -o tsv) \
+          --environment-variables \
+            METEO_USERNAME=$METEO_USERNAME \
+            METEO_PASSWORD=$METEO_PASSWORD \
+            BACKEND_URL=$BACKEND_URL \
+            JWT_SECRET=$JWT_SECRET \
+          --cpu 1 \
+          --memory 1.5
