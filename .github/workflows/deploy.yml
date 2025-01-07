@@ -56,22 +56,22 @@ jobs:
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
       run: |
 
-        az acr login --name tightgroups --username tightgroups --password $(az acr credential show --name tightgroups --query passwords[0].value -o tsv)
+        az acr login --name tightgroups 
 
         az container create \
           --resource-group devia_25 \
           --name tg-container-group \
           --file ./tightgroups_compose.yml \
-          --registry-username tightgroups \
-          --registry-password $(az acr credential show --name tightgroups --query passwords[0].value -o tsv) \
+          # --registry-username tightgroups \
+          # --registry-password $(az acr credential show --name tightgroups --query passwords[0].value -o tsv) \
           --environment-variables \
             METEO_USERNAME=$METEO_USERNAME \
             METEO_PASSWORD=$METEO_PASSWORD \
             BACKEND_URL=$BACKEND_URL \
             JWT_SECRET=$JWT_SECRET \
             DATABASE_URL=$DATABASE_URL \
-          --cpu 1 \
-          --memory 1.5 \
+          # --cpu 1 \
+          # --memory 1.5 \
           # --os-type Linux \
           # --ports 8000 8501 \
           # --ip-address public \
