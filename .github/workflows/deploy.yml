@@ -1,0 +1,50 @@
+name: Deploy to ACR
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Login to Azure
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Build and push Docker image
+      run: |
+        az acr build --registry tightgroups --image tightgroups:latest .
+
+    - name: Get Container ID
+      id: get_container_id
+      run: |
+        container_id=$(az container list --resource-group devia_25 --query "[?name=='tgcontainer'].{Id:id}" -o tsv)
+        echo "::set-output name=container_id::$container_id"
+
+    - name: Delete existing container
+      if: steps.get_container_id.outputs.container_id != ''
+      run: |
+        az container delete --resource-group devia_25 --name tgcontainer --yes
+
+    - name: Run new container
+      run: |
+        az container create \
+        --resource-group devia_25 \
+        --name tgcontainer \
+        --image tightgroups.azurecr.io/tightgroups:latest \
+        --registry-username tightgroups\
+        --registry-password $(az acr credential show --name tightgroups --query passwords[0].value -o tsv) \
+        --environment-variables \
+          "METEO_USERNAME=${{ secrets.METEO_USERNAME }}" \
+          "METEO_PASSWORD=${{ secrets.METEO_PASSWORD }}" \
+          "BACKEND_URL=${{ secrets.BACKEND_URL }}" \
+          "JWT_SECRET=${{ secrets.JWT_SECRET }}" \
+        --cpu 1 \
+        --memory 1.5

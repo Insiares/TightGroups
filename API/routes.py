@@ -15,17 +15,21 @@ from loguru import logger
 from typing import Annotated
 from API.ml.YOLO_inference import predict_groupsize
 import pandas as pd
+import sys
+import dotenv
+dotenv.load_dotenv()
 #log config
 
-logger.add("routes_logs.log")
+logger.add("./logs/routes_logs.log")
+logger.add(sys.stdout)
 #JWT config
 
-SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
+SECRET_KEY = os.getenv("JWT_KEY")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-DATABASE_URL = "mysql+pymysql://user:user@localhost/mydb"
-
+# DATABASE_URL = "mysql+pymysql://user:user@localhost/mydb"
+DATABASE_URL = os.getenv("DATABASE_URL")
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
@@ -251,7 +255,7 @@ async def get_image(image_id: int, db: Session = Depends(get_db)):
 async def inference(seance_id : int, image_id: int, db: Session = Depends(get_db)):
     logger.debug(f"Inference for seance {seance_id}")
     image_path = db.query(Image).filter(Image.id == image_id).first().file_path
-    model_path = "/home/insia/Documents/Projects/TightGroups/runs/detect/train16/weights/best.pt"
+    model_path = "./runs/detect/train16/weights/best.pt"
     #extract image name from image_path
     image_name = image_path.split("/")[-1]
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -268,6 +272,21 @@ async def inference(seance_id : int, image_id: int, db: Session = Depends(get_db
     db.commit()
     db.refresh(score)
 
+    return results
+
+#test routes for uptime check 
+@logger.catch
+@app.post("/inference/test/")
+async def inference_test(db: Session= Depends(get_db)):
+    image_id = 1 
+    model_path = "./runs/detect/train16/weights/best.pt"
+    #extract image name from image_path
+    image_path = db.query(Image).filter(Image.id == image_id).first().file_path
+    image_name = image_path.split("/")[-1]
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    input_path = os.path.join(current_dir, os.path.join("images", image_name))
+    outputh_path = os.path.join(current_dir, os.path.join("images_treated", image_name)) # TODO : be less dumb than this
+    results = predict_groupsize(input_path,model_path, outputh_path)
     return results
 
 @app.get("/scores/{user_id}/")

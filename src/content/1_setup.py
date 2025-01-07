@@ -6,6 +6,7 @@ import pandas as pd
 import time
 st.title("Setup")
 
+
 if "registering" not in st.session_state.keys() : 
     st.session_state.registering = False
 

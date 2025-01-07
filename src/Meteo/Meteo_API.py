@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 from geopy.geocoders import Nominatim
 from loguru import logger
-logger.add("meteo.log")
+logger.add("./logs/meteo.log")
 
 
 def get_current_time() -> str:

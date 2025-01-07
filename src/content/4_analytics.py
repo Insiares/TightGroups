@@ -163,10 +163,7 @@ else:
     filtered_df["date"] = filtered_df["created_at"].dt.date
     # logger.debug(f"agg df : {filtered_df.groupby(['created_at']).mean().reset_index()}")
     logger.debug(f"date type : {filtered_df['date'].dtype}")
-    logger.debug(f"filtered df head : {filtered_df.head()}")
     logger.debug(f"group size distinct values : {filtered_df['group_size'].nunique()}")
-    logger.debug(f"grouped df : {filtered_df.groupby("date").agg({"group_size": "mean"}).reset_index()}")
-    logger.debug(f"mean group size on the 2024 12 06 : {filtered_df["group_size"].loc[pd.to_datetime(filtered_df["date"]) == pd.to_datetime('2024-12-29')].mean()}")
     chart = (
                 alt.Chart(filtered_df.groupby(filtered_df["date"]).agg({"group_size": "mean"}).reset_index())
                 .mark_line(point=True)

@@ -5,7 +5,7 @@ import os
 from loguru import logger
 import dotenv
 
-logger.add("meteo.log")
+logger.add("./logs/meteo.log")
 # Replace with your actual username and password
 username = os.getenv('meteo_use')
 password = os.getenv('meteo_pwd')

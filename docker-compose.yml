@@ -1,11 +1,10 @@
-
 version: '3.1'
 
 services:
-  mariadb:
+  tightdb:
     image: mariadb:latest
-    network_mode : "bridge"
-    container_name: mariadb-container
+    restart : always
+    container_name: TightDB_container
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: mydb
@@ -16,5 +15,29 @@ services:
     volumes:
       - mariadb-data:/var/lib/mysql
 
+  app:
+    build:
+      context: .
+    container_name: app
+    depends_on:
+      - tightdb
+    ports:
+      - "8000:8000"  # Backend (FastAPI)
+      - "8501:8501"  # Frontend (Streamlit)
+    volumes:
+      - .:/app  # Mount the entire project directory
+    environment:
+      DATABASE_URL: "mysql+pymysql://user:user@tightdb/mydb"
+
+  uptime-kuma:
+    image: louislam/uptime-kuma:latest
+    container_name: uptime-kuma
+    restart: always
+    ports:
+      - "3001:3001"  # Uptime Kuma's default port
+    volumes:
+      - uptime-kuma-data:/app/data
+
 volumes:
   mariadb-data:
+  uptime-kuma-data:

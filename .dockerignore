@@ -1,0 +1,15 @@
+
+# Exclude virtual environment
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+Models/
+# Exclude other unwanted files (optional)
+*.git
+*.gitignore
+Dockerfile
+docker-compose.yml
+*.md
+*.log
