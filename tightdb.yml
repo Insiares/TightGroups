@@ -3,20 +3,25 @@ name: tightdb-container
 properties:
   containers:
   - name: tightdb
-    image: mariadb:latest
-    ports:
-    - port: 3306
-    environmentVariables:
-    - name: MYSQL_ROOT_PASSWORD
-      value: root
-    - name: MYSQL_DATABASE
-      value: mydb
-    - name: MYSQL_USER
-      value: user
-    - name: MYSQL_PASSWORD
-      value: user
-    # volumeMounts:
-    # - mountPath: /var/lib/mysql
-    #   name: mariadb-storage
+    properties:
+      image: mariadb:latest
+      ports:
+      - port: 3306
+      resources:
+        requests:
+          cpu: 0.5
+          memoryInGb: 1
+      environmentVariables:
+      - name: MYSQL_ROOT_PASSWORD
+        value: root
+      - name: MYSQL_DATABASE
+        value: mydb
+      - name: MYSQL_USER
+        value: user
+      - name: MYSQL_PASSWORD
+        value: user
+      # volumeMounts:
+      # - mountPath: /var/lib/mysql
+      #   name: mariadb-storage
   osType: Linux
   restartPolicy: Always

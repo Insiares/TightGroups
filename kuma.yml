@@ -3,8 +3,13 @@ name: uptime-kuma-container
 properties:
   containers:
   - name: uptime-kuma
-    image: louislam/uptime-kuma:latest
-    ports:
-    - port: 3001
+    properties:
+      image: louislam/uptime-kuma:latest
+      ports:
+       - port: 3001
+      resources:
+        requests:
+          cpu: 0.5
+          memoryInGb: 1
   osType: Linux
   restartPolicy: Always
