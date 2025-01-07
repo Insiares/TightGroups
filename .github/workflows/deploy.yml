@@ -66,5 +66,5 @@ jobs:
             BACKEND_URL=$BACKEND_URL \
             JWT_SECRET=$JWT_SECRET \
           --cpu 1 \
-          --memory 1.5
+          --memory 1.5 \
           --os-type Linux
