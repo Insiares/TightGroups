@@ -1,0 +1,53 @@
+location: francecentral
+name: tg-container-group
+properties:
+  containers:
+    - name: tightgroups
+      properties:
+        image: tightgroups.azurecr.io/tightgroups:latest
+        ports:
+          - port: 8501
+          - port: 8000
+        resources:
+          requests:
+            cpu: 1
+            memoryInGb: 2
+        
+    - name: tightdb
+      properties:
+        image: mariadb:latest
+        environmentVariables:
+          - name: MYSQL_ROOT_PASSWORD
+            value: root
+          - name: MYSQL_DATABASE
+            value: mydb
+          - name: MYSQL_USER
+            value: user
+          - name: MYSQL_PASSWORD
+            value: user
+        ports:
+          - port: 3306
+        resources:
+          requests:
+            cpu: 0.5
+            memoryInGb: 1
+        
+    - name: kuma
+      properties:
+        image: louislam/uptime-kuma:latest
+        ports:
+          - port: 3001
+        resources:
+          requests:
+            cpu: 0.5
+            memoryInGb: 1
+
+  osType: Linux
+  
+  restartPolicy: Always
+  ipAddress:
+    type: Public
+    dnsNameLabel: tightgroups
+    ports:
+      - port: 8501
+      - port: 3001
