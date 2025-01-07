@@ -9,18 +9,24 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
-    steps:
-    - name: Checkout repository
+
+    - name: Checkout private repo
       uses: actions/checkout@v2
+  with:
+     repository: Insiares/TightGroups
+     token: ${{ secrets.MY_TOKEN }}
 
     - name: Login to Azure
       uses: azure/login@v2
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+    - name: Set up Docker Compose
+      run: |
+          sudo apt-get install -y docker-compose
     - name: Build and push Docker image
       run: |
-        az acr build --registry tightgroups --image tightgroups:latest .
+        az acr build --registry tightgroups --image tightgroups:latest -f docker-compose.yml .
 
     - name: Get Container ID
       id: get_container_id
