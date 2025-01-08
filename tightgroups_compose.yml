@@ -58,11 +58,11 @@ properties:
           - port: 3001
         resources:
           requests:
-            cpu: 0.5
+            cpu: 1
             memoryInGb: 1.5
         volumeMounts:
          - name: kuma-data
-           mountPath: /data
+           mountPath: /app/data
 
   osType: Linux
   volumes:
