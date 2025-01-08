@@ -8,6 +8,17 @@ properties:
         ports:
           - port: 8501
           - port: 8000
+        environmentVariables:
+          - name: METEO_USERNAME
+            value: ${{ secrets.METEO_USERNAME }}
+          - name: METEO_PASSWORD
+            value: ${{ secrets.METEO_PASSWORD }}
+          - name: BACKEND_URL
+            value: ${{ secrets.BACKEND_URL }}
+          - name: JWT_SECRET
+            value: ${{ secrets.JWT_SECRET }}
+          - name: DATABASE_URL
+            value: ${{ secrets.DATABASE_URL }}
         resources:
           requests:
             cpu: 1
