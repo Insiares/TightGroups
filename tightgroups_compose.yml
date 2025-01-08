@@ -47,13 +47,13 @@ properties:
     - name: kuma
       properties:
         image: louislam/uptime-kuma:latest
-        environmentVariables:
-          - name: DB_TYPE
-            value: sqlite
-          - name: DB_SQLITE_FILE
-            value: /data/kuma.db
-          - name: UPKUMA_PORT
-            value: "3001"
+      #  environmentVariables:
+       #   - name: DB_TYPE
+        #    value: sqlite
+        #  - name: DB_SQLITE_FILE
+        #    value: /data/kuma.db
+        #  - name: UPKUMA_PORT
+         #   value: "3001"
         ports:
           - port: 3001
         resources:
