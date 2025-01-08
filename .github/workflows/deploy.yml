@@ -64,11 +64,23 @@ jobs:
       run: |
 
         az acr login --name tightgroups 
-        sed -i "s|PLACEHOLDER_METEO_USERNAME|$METEO_USERNAME|g" tightgroups_compose.yml
-        sed -i "s|PLACEHOLDER_METEO_PASSWORD|$METEO_PASSWORD|g" tightgroups_compose.yml
-        sed -i "s|PLACEHOLDER_BACKEND_URL|$BACKEND_URL|g" tightgroups_compose.yml
-        sed -i "s|PLACEHOLDER_JWT_SECRET|$JWT_SECRET|g" tightgroups_compose.yml
-        sed -i "s|PLACEHOLDER_DATABASE_URL|$DATABASE_URL|g" tightgroups_compose.yml
+        ESCAPED_METEO_USERNAME = $(echo "${{ secrets.METEO_USERNAME }}" | sed 's/[&|]/\\&/g')
+        ESCAPED_METEO_PASSWORD = $(echo "${{ secrets.METEO_PASSWORD }}" | sed 's/[&|]/\\&/g')
+        ESCAPED_BACKEND_URL = $(echo "${{ secrets.BACKEND_URL }}" | sed 's/[&|]/\\&/g')
+        ESCAPED_JWT_SECRET = $(echo "${{ secrets.JWT_SECRET }}" | sed 's/[&|]/\\&/g')
+        ESCAPED_DATABASE_URL = $(echo "${{ secrets.DATABASE_URL }}" | sed 's/[&|]/\\&/g')
+
+        sed -i "s|PLACEHOLDER_METEO_USERNAME|$ESCAPED_METEO_USERNAME|g" tightgroups_compose.yml
+        sed -i "s|PLACEHOLDER_METEO_PASSWORD|$ESCAPED_METEO_PASSWORD|g" tightgroups_compose.yml
+        sed -i "s|PLACEHOLDER_BACKEND_URL|$ESCAPED_BACKEND_URL|g" tightgroups_compose.yml
+        sed -i "s|PLACEHOLDER_JWT_SECRET|$ESCAPED_JWT_SECRET|g" tightgroups_compose.yml
+        sed -i "s|PLACEHOLDER_DATABASE_URL|$ESCAPED_DATABASE_URL|g" tightgroups_compose.yml
+
+        # sed -i "s|PLACEHOLDER_METEO_USERNAME|$METEO_USERNAME|g" tightgroups_compose.yml
+        # sed -i "s|PLACEHOLDER_METEO_PASSWORD|$METEO_PASSWORD|g" tightgroups_compose.yml
+        # sed -i "s|PLACEHOLDER_BACKEND_URL|$BACKEND_URL|g" tightgroups_compose.yml
+        # sed -i "s|PLACEHOLDER_JWT_SECRET|$JWT_SECRET|g" tightgroups_compose.yml
+        # sed -i "s|PLACEHOLDER_DATABASE_URL|$DATABASE_URL|g" tightgroups_compose.yml
         az container create \
           --resource-group devia_25 \
           --name tg-container-group \
