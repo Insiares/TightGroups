@@ -15,15 +15,15 @@ properties:
             value: PLACEHOLDER_METEO_PASSWORD
           - name: BACKEND_URL
             value: PLACEHOLDER_BACKEND_URL
-          - name: JWT_SECRET
+          - name: JWT_KEY
             value: PLACEHOLDER_JWT_SECRET
           - name: DATABASE_URL
             value: PLACEHOLDER_DATABASE_URL
 
         resources:
           requests:
-            cpu: 1
-            memoryInGb: 2
+            cpu: 0.5
+            memoryInGb: 1
         
     - name: tightdb
       properties:
@@ -47,6 +47,13 @@ properties:
     - name: kuma
       properties:
         image: louislam/uptime-kuma:latest
+        environmentVariables:
+          - name: DB_TYPE
+            value: sqlite
+          - name: DB_SQLITE_FILE
+            value: /app/data/kuma.db
+          - name: UPKUMA_PORT
+            value: "3001"
         ports:
           - port: 3001
         resources:
