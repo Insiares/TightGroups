@@ -51,7 +51,7 @@ properties:
           - name: DB_TYPE
             value: sqlite
           - name: DB_SQLITE_FILE
-            value: /app/data/kuma.db
+            value: /data/kuma.db
           - name: UPKUMA_PORT
             value: "3001"
         ports:
