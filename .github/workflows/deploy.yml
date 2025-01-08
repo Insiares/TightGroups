@@ -23,8 +23,11 @@ jobs:
       with:
         username: insiares
         password: ${{ secrets.DOCKER_PASSWORD }}
-
-    - name: Get Container ID
+    - name: build oush docker
+      run: |
+      docker build -t insiares/tightgroups:latest .
+      docker push insiares/tightgroups:latest
+    - name: Get Contaner ID
       id: get_container_id
       run: |
         container_id=$(az container list --resource-group devia_25 --query "[?name=='tg-container-group'].{Id:id}" -o tsv)
