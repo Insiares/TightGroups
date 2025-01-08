@@ -59,10 +59,15 @@ properties:
         resources:
           requests:
             cpu: 0.5
-            memoryInGb: 1
+            memoryInGb: 1.5
+        volumeMounts:
+         - name: kuma-data
+           mountPath: /data
 
   osType: Linux
-  
+  volumes:
+  - name: kuma-data
+    emptyDir: {}
   restartPolicy: Always
   ipAddress:
     type: Public
