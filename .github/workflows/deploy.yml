@@ -23,10 +23,12 @@ jobs:
       with:
         username: insiares
         password: ${{ secrets.DOCKER_PASSWORD }}
+
     - name: build oush docker
       run: |
       docker build -t insiares/tightgroups:latest .
       docker push insiares/tightgroups:latest
+
     - name: Get Contaner ID
       id: get_container_id
       run: |
