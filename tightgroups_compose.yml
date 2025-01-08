@@ -18,7 +18,7 @@ properties:
           - port: 3306
         resources:
           requests:
-            cpu: 0.5
+            cpu: 0.25
             memoryInGb: 1
 
     - name: tightgroups
@@ -58,8 +58,8 @@ properties:
           - port: 3001
         resources:
           requests:
-            cpu: 1
-            memoryInGb: 1.5
+            cpu: 0.25
+            memoryInGb: 0.8
         volumeMounts:
          - name: kuma-data
            mountPath: /app/data
