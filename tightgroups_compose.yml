@@ -44,7 +44,7 @@ properties:
             cpu: 0.5
             memoryInGb: 1
         
-     - name: kuma
+    - name: kuma
       properties:
         image: louislam/uptime-kuma:latest
         environmentVariables:
