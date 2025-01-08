@@ -18,28 +18,11 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    # - name : Create db container
-    #   run: |
-    #     az container create \
-    #     --resource-group devia_25 \
-    #     --file ./tightdb.yml \
-    #
-    # - name : create kuma container
-    #   run: |
-    #     az container create \
-    #     --resource-group devia_25 \
-    #     --file ./kuma.yml \
-    #
     - name: Log in to Docker Hub
       uses: docker/login-action@v2
       with:
         username: insiares
         password: ${{ secrets.DOCKER_PASSWORD }}
-
-    # - name: Build and push Docker image
-    #   run: |
-    #     docker build -t insiares/tightgroups:latest .
-    #     docker push insiares/tightgroups:latest
 
     - name: Get Container ID
       id: get_container_id
@@ -51,8 +34,6 @@ jobs:
       if: steps.get_container_id.outputs.container_id != ''
       run: |
         az container delete --resource-group devia_25 --name tg-container-group --yes
-
-
 
     - name: Run new app container
       env:
@@ -76,26 +57,8 @@ jobs:
         sed -i "s|PLACEHOLDER_JWT_SECRET|$ESCAPED_JWT_SECRET|g" tightgroups_compose.yml
         sed -i "s|PLACEHOLDER_DATABASE_URL|$ESCAPED_DATABASE_URL|g" tightgroups_compose.yml
 
-        # sed -i "s|PLACEHOLDER_METEO_USERNAME|$METEO_USERNAME|g" tightgroups_compose.yml
-        # sed -i "s|PLACEHOLDER_METEO_PASSWORD|$METEO_PASSWORD|g" tightgroups_compose.yml
-        # sed -i "s|PLACEHOLDER_BACKEND_URL|$BACKEND_URL|g" tightgroups_compose.yml
-        # sed -i "s|PLACEHOLDER_JWT_SECRET|$JWT_SECRET|g" tightgroups_compose.yml
-        # sed -i "s|PLACEHOLDER_DATABASE_URL|$DATABASE_URL|g" tightgroups_compose.yml
-        az container create \
+           az container create \
           --resource-group devia_25 \
           --name tg-container-group \
           --file ./tightgroups_compose.yml \
-          # --registry-username tightgroups \
-          # # --registry-password $(az acr credential show --name tightgroups --query passwords[0].value -o tsv) \
-          # --environment-variables \
-          #   METEO_USERNAME=$METEO_USERNAME \
-          #   METEO_PASSWORD=$METEO_PASSWORD \
-          #   BACKEND_URL=$BACKEND_URL \
-          #   JWT_SECRET=$JWT_SECRET \
-          #   DATABASE_URL=$DATABASE_URL \
-          # --cpu 1 \
-          # --memory 1.5 \
-          # --os-type Linux \
-          # --ports 8000 8501 \
-          # --ip-address public \
-          # --dns-name-label tightgroups
+        

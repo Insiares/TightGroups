@@ -2,6 +2,25 @@ location: francecentral
 name: tg-container-group
 properties:
   containers:
+    - name: tightdb
+      properties:
+        image: mariadb:latest
+        environmentVariables:
+          - name: MYSQL_ROOT_PASSWORD
+            value: root
+          - name: MYSQL_DATABASE
+            value: mydb
+          - name: MYSQL_USER
+            value: user
+          - name: MYSQL_PASSWORD
+            value: user
+        ports:
+          - port: 3306
+        resources:
+          requests:
+            cpu: 0.5
+            memoryInGb: 1
+
     - name: tightgroups
       properties:
         image: insiares/tightgroups:latest
@@ -25,26 +44,7 @@ properties:
             cpu: 0.5
             memoryInGb: 1
         
-    - name: tightdb
-      properties:
-        image: mariadb:latest
-        environmentVariables:
-          - name: MYSQL_ROOT_PASSWORD
-            value: root
-          - name: MYSQL_DATABASE
-            value: mydb
-          - name: MYSQL_USER
-            value: user
-          - name: MYSQL_PASSWORD
-            value: user
-        ports:
-          - port: 3306
-        resources:
-          requests:
-            cpu: 0.5
-            memoryInGb: 1
-        
-    - name: kuma
+     - name: kuma
       properties:
         image: louislam/uptime-kuma:latest
         environmentVariables:
