@@ -44,13 +44,13 @@ jobs:
     - name: Get Container ID
       id: get_container_id
       run: |
-        container_id=$(az container list --resource-group devia_25 --query "[?name=='tgcontainer'].{Id:id}" -o tsv)
+        container_id=$(az container list --resource-group devia_25 --query "[?name=='tg-container-group'].{Id:id}" -o tsv)
         echo "::set-output name=container_id::$container_id"
 
     - name: Delete existing container
       if: steps.get_container_id.outputs.container_id != ''
       run: |
-        az container delete --resource-group devia_25 --name tgcontainer --yes
+        az container delete --resource-group devia_25 --name tg-container-group --yes
 
 
 
@@ -64,19 +64,24 @@ jobs:
       run: |
 
         az acr login --name tightgroups 
+        sed -i "s/PLACEHOLDER_METEO_USERNAME/$METEO_USERNAME/g" tightgroups_compose.yml
+        sed -i "s/PLACEHOLDER_METEO_PASSWORD/$METEO_PASSWORD/g" tightgroups_compose.yml
+        sed -i "s/PLACEHOLDER_BACKEND_URL/$BACKEND_URL/g" tightgroups_compose.yml
+        sed -i "s/PLACEHOLDER_JWT_SECRET/$JWT_SECRET/g" tightgroups_compose.yml
+        sed -i "s/PLACEHOLDER_DATABASE_URL/$DATABASE_URL/g" tightgroups_compose.yml 
 
         az container create \
           --resource-group devia_25 \
           --name tg-container-group \
           --file ./tightgroups_compose.yml \
           # --registry-username tightgroups \
-          # --registry-password $(az acr credential show --name tightgroups --query passwords[0].value -o tsv) \
-          --environment-variables \
-            METEO_USERNAME=$METEO_USERNAME \
-            METEO_PASSWORD=$METEO_PASSWORD \
-            BACKEND_URL=$BACKEND_URL \
-            JWT_SECRET=$JWT_SECRET \
-            DATABASE_URL=$DATABASE_URL \
+          # # --registry-password $(az acr credential show --name tightgroups --query passwords[0].value -o tsv) \
+          # --environment-variables \
+          #   METEO_USERNAME=$METEO_USERNAME \
+          #   METEO_PASSWORD=$METEO_PASSWORD \
+          #   BACKEND_URL=$BACKEND_URL \
+          #   JWT_SECRET=$JWT_SECRET \
+          #   DATABASE_URL=$DATABASE_URL \
           # --cpu 1 \
           # --memory 1.5 \
           # --os-type Linux \
