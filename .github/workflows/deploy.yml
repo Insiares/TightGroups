@@ -36,10 +36,10 @@ jobs:
         username: insiares
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Build and push Docker image
-      run: |
-        docker build -t insiares/tightgroups:latest .
-        docker push insiares/tightgroups:latest
+    # - name: Build and push Docker image
+    #   run: |
+    #     docker build -t insiares/tightgroups:latest .
+    #     docker push insiares/tightgroups:latest
 
     - name: Get Container ID
       id: get_container_id
@@ -64,12 +64,11 @@ jobs:
       run: |
 
         az acr login --name tightgroups 
-        sed -i "s/PLACEHOLDER_METEO_USERNAME/$METEO_USERNAME/g" tightgroups_compose.yml
-        sed -i "s/PLACEHOLDER_METEO_PASSWORD/$METEO_PASSWORD/g" tightgroups_compose.yml
-        sed -i "s/PLACEHOLDER_BACKEND_URL/$BACKEND_URL/g" tightgroups_compose.yml
-        sed -i "s/PLACEHOLDER_JWT_SECRET/$JWT_SECRET/g" tightgroups_compose.yml
-        sed -i "s/PLACEHOLDER_DATABASE_URL/$DATABASE_URL/g" tightgroups_compose.yml 
-
+        sed -i "s|PLACEHOLDER_METEO_USERNAME|$METEO_USERNAME|g" tightgroups_compose.yml
+        sed -i "s|PLACEHOLDER_METEO_PASSWORD|$METEO_PASSWORD|g" tightgroups_compose.yml
+        sed -i "s|PLACEHOLDER_BACKEND_URL|$BACKEND_URL|g" tightgroups_compose.yml
+        sed -i "s|PLACEHOLDER_JWT_SECRET|$JWT_SECRET|g" tightgroups_compose.yml
+        sed -i "s|PLACEHOLDER_DATABASE_URL|$DATABASE_URL|g" tightgroups_compose.yml
         az container create \
           --resource-group devia_25 \
           --name tg-container-group \
