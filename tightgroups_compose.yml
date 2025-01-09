@@ -70,7 +70,6 @@ properties:
     emptyDir: {}
   restartPolicy: Always
   ipAddress:
-    type: Public
     dnsNameLabel: tightgroups
     ports:
       - port: 8501
