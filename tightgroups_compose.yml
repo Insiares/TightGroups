@@ -71,7 +71,7 @@ properties:
   restartPolicy: Always
   ipAddress:
     type: public
-    dnsNameLabelReusePolicy: tenantReuse
+    dnsNameLabelReusePolicy: tenantreuse
     dnsNameLabel: tightgroups
     ports:
       - port: 8501
