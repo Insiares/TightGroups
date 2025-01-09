@@ -69,7 +69,7 @@ properties:
   - name: kuma-data
     emptyDir: {}
   restartPolicy: Always
-   ipAddress:
+  ipAddress:
     type: public
     dnsNameLabelReusePolicy: tenantReuse
     dnsNameLabel: tightgroups
