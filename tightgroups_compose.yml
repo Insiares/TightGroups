@@ -72,7 +72,6 @@ properties:
   ipAddress:
     type: public
     dnsNameLabel: tightgroups
-    dnsNameLabelReusePolicy: tenantreuse
     ports:
       - port: 8501
       - port: 3001
