@@ -28,9 +28,9 @@ properties:
           - port: 8501
           - port: 8000
         environmentVariables:
-          - name: METEO_USERNAME
+          - name: meteo_use
             value: PLACEHOLDER_METEO_USERNAME
-          - name: METEO_PASSWORD
+          - name: meteo_pwd
             value: PLACEHOLDER_METEO_PASSWORD
           - name: BACKEND_URL
             value: PLACEHOLDER_BACKEND_URL
