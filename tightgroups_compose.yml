@@ -69,8 +69,8 @@ properties:
   - name: kuma-data
     emptyDir: {}
   restartPolicy: Always
-  ipAddress:
-    dnsNameLabel: tightgroups
-    ports:
-      - port: 8501
-      - port: 3001
+  # ipAddress:
+  #  dnsNameLabel: tightgroups
+   # ports:
+   #   - port: 8501
+   #   - port: 3001
