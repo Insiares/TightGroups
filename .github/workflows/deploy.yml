@@ -63,8 +63,8 @@ jobs:
         sed -i "s|PLACEHOLDER_BACKEND_URL|$ESCAPED_BACKEND_URL|g" tightgroups_compose.yml
         sed -i "s|PLACEHOLDER_JWT_SECRET|$ESCAPED_JWT_SECRET|g" tightgroups_compose.yml
         sed -i "s|PLACEHOLDER_DATABASE_URL|$ESCAPED_DATABASE_URL|g" tightgroups_compose.yml
-        sed -i "s|PLACEHOLDER_SHAREACCOUNT|&ESCAPED_SHAREACCOUNT|g" tightgroups_compose.yml
-        sed -i "s|PLACEHOLDER_SHAREKEY|&ESCAPED_SHAREKEY|g" tightgroups_compose.yml
+        sed -i "s|PLACEHOLDER_SHAREACCOUNT|$ESCAPED_SHAREACCOUNT|g" tightgroups_compose.yml
+        sed -i "s|PLACEHOLDER_SHAREKEY|$ESCAPED_SHAREKEY|g" tightgroups_compose.yml
 
            az container create \
           --resource-group devia_25 \
