@@ -55,12 +55,16 @@ jobs:
         ESCAPED_BACKEND_URL=$(echo "${{ secrets.BACKEND_URL }}" | sed 's/[&|]/\\&/g')
         ESCAPED_JWT_SECRET=$(echo "${{ secrets.JWT_SECRET }}" | sed 's/[&|]/\\&/g')
         ESCAPED_DATABASE_URL=$(echo "${{ secrets.DATABASE_URL }}" | sed 's/[&|]/\\&/g')
+        ESCAPED_SHAREACCOUNT=$(echo "${{ secrets.SHARE_ACCOUNT }}" | sed 's/[&|]/\\&/g')
+        ESCAPED_SHAREKEY=$(echo "${{ secrets.SHAREKEY }}" | sed 's/[&|]/\\&/g')
 
         sed -i "s|PLACEHOLDER_METEO_USERNAME|$ESCAPED_METEO_USERNAME|g" tightgroups_compose.yml
         sed -i "s|PLACEHOLDER_METEO_PASSWORD|$ESCAPED_METEO_PASSWORD|g" tightgroups_compose.yml
         sed -i "s|PLACEHOLDER_BACKEND_URL|$ESCAPED_BACKEND_URL|g" tightgroups_compose.yml
         sed -i "s|PLACEHOLDER_JWT_SECRET|$ESCAPED_JWT_SECRET|g" tightgroups_compose.yml
         sed -i "s|PLACEHOLDER_DATABASE_URL|$ESCAPED_DATABASE_URL|g" tightgroups_compose.yml
+        sed -i "s|PLACEHOLDER_SHAREACCOUNT|&ESCAPED_SHAREACCOUNT|g" tightgroups_compose.yml
+        sed -i "s|PLACEHOLDER_SHAREKEY|&ESCAPED_SHAREKEY|g" tightgroups_compose.yml
 
            az container create \
           --resource-group devia_25 \
