@@ -67,7 +67,7 @@ properties:
             memoryInGb: 0.8
         volumeMounts:
           - name: azure-file-share
-            mountPath: /mnt/app/data
+            mountPath: /data
 
   osType: Linux
   volumes:
