@@ -14,11 +14,14 @@ properties:
             value: user
           - name: MYSQL_PASSWORD
             value: user
+        volumeMounts:
+          - name: azure-file-share
+            mountPath: /mnt/asf
         ports:
           - port: 3306
         resources:
           requests:
-            cpu: 0.25
+            cpu: 1
             memoryInGb: 1
 
     - name: tightgroups
@@ -38,7 +41,9 @@ properties:
             value: PLACEHOLDER_JWT_SECRET
           - name: DATABASE_URL
             value: PLACEHOLDER_DATABASE_URL
-
+        volumeMounts:
+          - name: azure-file-share
+            mountPath: /mnt/asf
         resources:
           requests:
             cpu: 0.5
@@ -61,13 +66,16 @@ properties:
             cpu: 0.25
             memoryInGb: 0.8
         volumeMounts:
-         - name: kuma-data
-           mountPath: /app/data
+          - name: azure-file-share
+            mountPath: /mnt/asf
 
   osType: Linux
   volumes:
-  - name: kuma-data
-    emptyDir: {}
+  - name: azure-file-share
+    azureFile:
+      sharename: tightafs
+      storageAccountName: PLACEHOLDER_SHAREACCOUNT
+      storageAccountKey: PLACEHOLDER_SHAREKEY
   restartPolicy: Always
   ipAddress:
     type: public
