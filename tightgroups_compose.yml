@@ -16,7 +16,7 @@ properties:
             value: user
         volumeMounts:
           - name: azure-file-share
-            mountPath: /mnt/asf
+            mountPath: /var/lib/mysql
         ports:
           - port: 3306
         resources:
@@ -67,7 +67,7 @@ properties:
             memoryInGb: 0.8
         volumeMounts:
           - name: azure-file-share
-            mountPath: /data
+            mountPath: app/data/
 
   osType: Linux
   volumes:
