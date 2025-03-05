@@ -46,8 +46,8 @@ properties:
             mountPath: /mnt/asf
         resources:
           requests:
-            cpu: 0.5
-            memoryInGb: 1
+           # cpu: 0.5
+           # memoryInGb: 1
         
     - name: kuma
       properties:
