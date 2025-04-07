@@ -10,4 +10,7 @@ __pycache__/
 ./Models/YOLO/Synth_dataset*/
 ./API/images/
 *.log
-
+Models/
+.pytest_cache/
+flet_app.py
+main_draft_st.py
