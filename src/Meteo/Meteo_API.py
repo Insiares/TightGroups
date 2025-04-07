@@ -34,7 +34,6 @@ def get_meteo_data(user_input : str = "13800", dt: str = get_current_time()):
     match response.status_code:
         case 200:
             logger.info("Meteo call sucessful")
-            # Extract metrics from response json
             response = response.json()
             output = {
                 "temp_C": response['data'][0]['coordinates'][0]['dates'][0]['value'],
@@ -43,7 +42,7 @@ def get_meteo_data(user_input : str = "13800", dt: str = get_current_time()):
                 "wind_speed": response['data'][3]['coordinates'][0]['dates'][0]['value'],
                 "wind_dir": response['data'][4]['coordinates'][0]['dates'][0]['value'],
                 "wind_gust": response['data'][5]['coordinates'][0]['dates'][0]['value'],
-                "weather_symbol": response['data'][6]['coordinates'][0]['dates'][0]['value'],
+                "weather_symbol": response['data'][6]['coordinates'][0]['dates'][0]['value'], # I called symbol in hope to use it, but TODO 
             }
             logger.debug(f"Output : {output}")
             return output

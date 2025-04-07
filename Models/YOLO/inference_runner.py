@@ -3,14 +3,16 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 
-model = YOLO("/home/insia/Documents/Projects/TightGroups/runs/detect/train16/weights/best.pt")
+model = YOLO("/home/insia/Documents/Projects/TightGroups/runs/detect/train/weights/best.pt")
 #model = YOLO("yolov8n.pt")
 
 #test 
-input_image = "/home/insia/Documents/Projects/TightGroups/Models/YOLO/synth_dataset/val/target_98.jpg"
+#input_image = "/home/insia/Documents/Projects/TightGroups/Models/YOLO/synth_dataset/val/target_98.jpg"
 #input_image = "/home/insia/Downloads/31161.webp"
 #real image
 #input_image = "/home/insia/Documents/Projects/TightGroups/Models/images_reference/cible_edge_case_cropped_resized.jpg"
+
+input_image = "/home/insia/Documents/Projects/TightGroups/Models/images_reference/cible_easy_case_cropped.jpg"
 
 #Inso image
 #input_image = "/home/insia/Documents/Projects/TightGroups/Models/images_reference/cible_inso.jpg"
@@ -20,17 +22,22 @@ input_image = "/home/insia/Documents/Projects/TightGroups/Models/YOLO/synth_data
 #easy spread 
 #input_image = "/home/insia/Documents/Projects/TightGroups/Models/test/image_with_circle_9.jpg"
 # apply filter to the image 
-image = cv2.imread(input_image)
-image = cv2.resize(image, (640, 640))
-image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+image = cv2.imread(input_image, cv2.IMREAD_GRAYSCALE)
+image1 = cv2.resize(image, (640, 640))
+#image2 = cv2.cvtColor(image1, cv2.COLOR_BGR2RGB)
 # # Black and white image and apply gaussian blur
- #gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+# gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 # image = cv2.blur(gray, (5, 5))
+#clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+image2 = cv2.equalizeHist(image1)
+image3 = cv2.cvtColor(image2, cv2.COLOR_GRAY2RGB)
+cv2.imshow("image",image3)
+
 # treated_image = "/home/insia/Documents/Projects/TightGroups/Models/images_reference/cible_edge_case_cropped_resized_treated.jpg"
 # cv2.imwrite(treated_image, image)
 #results = model(input_image)
-results = model.predict(source=image, save = True, iou=0.7, augment=True, retina_masks=True, conf=0.45)
-
+# results = model.predict(source=image, save = True, iou=0.7, augment=True, retina_masks=True, conf=0.45)
+results = model.predict(image3)
 # Load the original image
 # Draw predictions on the image
 max_x = 0
@@ -49,7 +56,7 @@ for box in results[0].boxes:
     # Draw the bounding box and label
     cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 1)
     label_text = f"{label} {confidence:.2f}"
-    cv2.putText(image, label_text, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+    #cv2.putText(image, label_text, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 group_size = max(max_x - min_x, max_y - min_y)
 print(f"GRoup size {group_size}")
 # Display the image with matplotlib

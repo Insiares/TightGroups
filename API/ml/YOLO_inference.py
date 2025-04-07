@@ -1,17 +1,23 @@
 from ultralytics import YOLO
 import cv2
 from loguru import logger
-
+import os
+import datetime
 @logger.catch
 def predict_groupsize(image_path : str , model_path :str, output_path : str):
 
     model = YOLO(model_path)
- 
+    now = datetime.datetime.now()
+    filename = f'detection_{now.strftime("%Y-%m-%d_%H-%M-%S")}.txt'
+    outputdir = "./API/ml/runs/"
+
+    if not os.path.exists(outputdir):
+        os.makedirs(outputdir)
 
     image = cv2.imread(image_path)
     image = cv2.resize(image, (640, 640))
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    results = model.predict(image)
+    results = model.predict(image, save_txt=True, save_conf=True, project = outputdir, name = filename, exist_ok = True)
 
     max_x = 0
     max_y = 0

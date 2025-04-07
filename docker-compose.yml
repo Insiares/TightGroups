@@ -18,7 +18,8 @@ services:
       context: .
     container_name: app
     depends_on:
-      - tightdb
+      tightdb:
+        condition: service_started
     ports:
       - "8000:8000"  # Backend (FastAPI)
       - "8501:8501"  # Frontend (Streamlit)
@@ -26,6 +27,7 @@ services:
       - .:/app  # Mount the entire project directory
     environment:
       DATABASE_URL: "mysql+pymysql://user:user@tightdb/mydb"
+      JWT_KEY: "secret_key"
 
   uptime-kuma:
     image: louislam/uptime-kuma:latest

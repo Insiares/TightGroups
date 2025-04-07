@@ -1,6 +1,7 @@
 from API.Database.Models import ini_db, Base, User, Setup, Image, Score, Ammo, Seance
 from fastapi import FastAPI,APIRouter, Depends, HTTPException, File, UploadFile, status, Form
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.responses import JSONResponse
 import jwt
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, select, label
@@ -16,7 +17,10 @@ from typing import Annotated
 from API.ml.YOLO_inference import predict_groupsize
 import pandas as pd
 import sys
+import glob
 import dotenv
+import numpy as np 
+import scipy.stats as stats
 dotenv.load_dotenv()
 #log config
 
@@ -335,8 +339,48 @@ async def get_scores(user_id: int, db: Session = Depends(get_db)):
     scores = pd.read_sql_query(query_not_dumb, db.bind, index_col = None)    
     return scores.to_dict("records")
 
+@app.get("/health/")
+async def health():
+    files = glob.glob('API/ml/runs/detection_*/labels/*.txt')
+    files.sort(key=lambda x: os.path.getmtime(x), reverse=True)
+    last_50_files = files[:50]
+    all_detections = []
+    all_confidences = []
+    min_detections_threshold = 5
+    min_confidence_threshold = 0.45
+    outlier_threshold = 3
+    for file in last_50_files:
+        with open(file, 'r') as f:
+            detections = 0
+            lines = f.readlines()
+            for line in lines:
+                values = line.strip().split(' ')
+                confidence = float(values[5])
+                detections += 1
+                all_confidences.append(confidence)
+
+            all_detections.append(detections)
+    
+    if all_confidences:
+        confidence_outliers = np.abs(stats.zscore(all_confidences)) > outlier_threshold
+        
+        if (np.mean(all_detections) < min_detections_threshold or
+            np.any(all_detections == 0) or 
+            np.mean(all_confidences) < min_confidence_threshold or
+            np.any(confidence_outliers)):
+            status = 'unhealthy'
+        else:
+            status = 'healthy'
+    else:
+        status = 'unhealthy'
+    
+    return JSONResponse(content={'status': status}, media_type='application/json')
+    return {"status": "ok"}
 
 
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host='0.0.0.0', port =8000)
+
+
+
