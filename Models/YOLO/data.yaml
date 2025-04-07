@@ -1,8 +1,0 @@
-# YOLO TRAINING
-
-train: /home/insia/Documents/Projects/TightGroups/Models/YOLO/synth_dataset_v3/train
-val: /home/insia/Documents/Projects/TightGroups/Models/YOLO/synth_dataset_v3/val
-
-nc : 3
-
-names: ["impact", "center", "edge"]
