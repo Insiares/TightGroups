@@ -3,6 +3,8 @@ import cv2
 from loguru import logger
 import os
 import datetime
+from API.ml.scanner.scan import DocScanner
+
 @logger.catch
 def predict_groupsize(image_path : str , model_path :str, output_path : str):
 
@@ -14,6 +16,9 @@ def predict_groupsize(image_path : str , model_path :str, output_path : str):
     if not os.path.exists(outputdir):
         os.makedirs(outputdir)
 
+    scanner = DocScanner()
+    # image = scanner.scan(image_path)
+
     image = cv2.imread(image_path)
     image = cv2.resize(image, (640, 640))
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -21,8 +26,8 @@ def predict_groupsize(image_path : str , model_path :str, output_path : str):
 
     max_x = 0
     max_y = 0
-    min_x = 640
-    min_y = 640
+    min_x = image.shape[1]
+    min_y = image.shape[0]
 
     for box in results[0].boxes:
 
@@ -37,7 +42,13 @@ def predict_groupsize(image_path : str , model_path :str, output_path : str):
         #label_text = f"{label} {confidence:.2f}"
         # cv2.putText(image, label_text, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
-    group_size = max(max_x - min_x, max_y - min_y)
+    group_size_pixel = max(max_x - min_x, max_y - min_y)
+    paper_size = 209.0
+    image_size = image.shape[0]
+    mm_per_pixel = paper_size / image_size
+
+    group_size = group_size_pixel * mm_per_pixel
+    #image = cv2.resize(image, (640, 640))
     cv2.imwrite(output_path, image)
 
     return group_size
