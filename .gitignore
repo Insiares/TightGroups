@@ -14,3 +14,4 @@ Models/
 .pytest_cache/
 flet_app.py
 main_draft_st.py
+runs/
