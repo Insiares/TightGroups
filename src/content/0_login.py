@@ -39,6 +39,45 @@ def register(email : str, username : str, password : str):
         time.sleep(5)
         return None
 
+def show_terms_and_conditions():
+    terms_content = """
+    # Terms and Conditions
+    
+    ## Data Protection and Privacy Policy
+    
+    **1. Data Collection**
+    
+    We collect personal information including email, username, and encrypted passwords for the purpose of account management and service provision.
+    
+    **2. Data Processing**
+    
+    Your data is processed according to GDPR requirements, ensuring lawful, fair, and transparent data handling.
+    
+    **3. User Rights**
+    
+    Users have the right to:
+    - Access their personal data
+    - Request correction of inaccurate data
+    - Request deletion of their data
+    - Object to processing of their data
+    - Data portability
+    
+    **4. Data Security**
+    
+    We implement appropriate security measures to protect against unauthorized access, alteration, disclosure, or destruction of your personal information.
+    
+    **5. Cookies and Tracking**
+    
+    Our application may use cookies for session management and improving user experience.
+    
+    **6. Contact Information**
+    
+    For privacy concerns or data requests, contact us at insia.resistance@gmail.com.
+    """
+    return terms_content
+
+
+
 
 with st.form("login_form"):
     username = st.text_input("Username")
@@ -56,16 +95,27 @@ with st.form("login_form"):
 if st.button("Don't Have an account? Register") or st.session_state.registering:
     st.session_state.registering = True
     with st.form("register_form"):
+        
         email = st.text_input("Email")
         username = st.text_input("Username")
         password = st.text_input("Password", type="password")
+        col1, col2 = st.columns([1, 15])
+        with col1:
+            terms_accepted = st.checkbox("", key="terms_checkbox")
+        with col2:
+            with st.popover("i accept the Terms and Conditions"):
+                st.markdown(show_terms_and_conditions())
         submitted = st.form_submit_button("Register")
 
         if submitted:
-            result = register(email, username, password)
-            if result == 'OK':
-                with st.spinner('Redirecting to login page...'):
-                    time.sleep(2)
-                    st.session_state.registering = False
-                    st.rerun()
-                
+            if not terms_accepted:
+                st.error("You must accept the Terms and Conditions to register.")
+            else: 
+                result = register(email, username, password)
+                if result == 'OK':
+                    with st.spinner('Redirecting to login page...'):
+                        time.sleep(2)
+                        st.session_state.registering = False
+                        st.rerun()
+                        
+   

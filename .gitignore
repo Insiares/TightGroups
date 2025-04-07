@@ -15,3 +15,5 @@ Models/
 flet_app.py
 main_draft_st.py
 runs/
+API/images/
+API/images_treated/

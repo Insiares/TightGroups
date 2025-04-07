@@ -17,12 +17,13 @@ def predict_groupsize(image_path : str , model_path :str, output_path : str):
         os.makedirs(outputdir)
 
     scanner = DocScanner()
-    # image = scanner.scan(image_path)
+    image = scanner.scan(image_path)
 
-    image = cv2.imread(image_path)
+    # image = cv2.imread(image_path)
     image = cv2.resize(image, (640, 640))
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    results = model.predict(image, save_txt=True, save_conf=True, project = outputdir, name = filename, exist_ok = True)
+    image = cv2.GaussianBlur(image, (5,5), 0)
+    results = model.predict(image, save_txt=True, save_conf=True, retina_masks=True, iou=0.5, conf=0.5, project = outputdir, name = filename, exist_ok = True)
 
     max_x = 0
     max_y = 0
@@ -48,7 +49,7 @@ def predict_groupsize(image_path : str , model_path :str, output_path : str):
     mm_per_pixel = paper_size / image_size
 
     group_size = group_size_pixel * mm_per_pixel
-    #image = cv2.resize(image, (640, 640))
+    image = cv2.resize(image, (640, 640))
     cv2.imwrite(output_path, image)
 
     return group_size
