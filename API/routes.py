@@ -226,6 +226,7 @@ async def get_gears(users_id: int, db: Session = Depends(get_db)):
 async def upload_image(setup_id: int = Form(...), seance_id: int = Form(...), file: UploadFile = File(...),db: Session = Depends(get_db)):
     # logger.info("bonjour") 
     logger.debug(f"uploading image")
+    os.makedirs("./API/images", exist_ok=True)
     file_path = f"./API/images/{file.filename}"
     with open(file_path, "wb") as image_file:
        logger.info(f"Saving image to {file_path}")
@@ -265,6 +266,7 @@ async def inference(seance_id : int, image_id: int, db: Session = Depends(get_db
     image_name = image_path.split("/")[-1]
     current_dir = os.path.dirname(os.path.abspath(__file__))
     logger.debug(f"Current directory: {current_dir}")
+    os.makedirs(os.path.join(current_dir, "images_treated"), exist_ok=True)
     input_path = os.path.join(current_dir, os.path.join("images", image_name))
     outputh_path = os.path.join(current_dir, os.path.join("images_treated", image_name)) # TODO : be less dumb than this
     logger.debug(f"called predict_groupsize with {model_path}, {input_path}, {outputh_path}")
