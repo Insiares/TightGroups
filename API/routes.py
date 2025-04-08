@@ -259,8 +259,8 @@ async def get_image(image_id: int, db: Session = Depends(get_db)):
 async def inference(seance_id : int, image_id: int, db: Session = Depends(get_db)):
     logger.debug(f"Inference for seance {seance_id}")
     image_path = db.query(Image).filter(Image.id == image_id).first().file_path
-    model_path = "./runs/detect/train16/weights/best.pt"
-    # model_path = "impact_detector.pt"
+    # model_path = "./runs/detect/train16/weights/best.pt"
+    model_path = "impact_detector16.pt"
     #extract image name from image_path
     image_name = image_path.split("/")[-1]
     current_dir = os.path.dirname(os.path.abspath(__file__))
