@@ -5,6 +5,8 @@ from src.config import Config, logger
 import pandas as pd
 import time
 from Meteo.Meteo_API import get_meteo_data
+from components.auth import refresh_access_token
+
 st.title("Seances")
 
 if "registering" not in st.session_state.keys() : 
@@ -14,7 +16,13 @@ def submit_new_seance(meteo_data):
     #add user id to meteo_data json
     meteo_data["user_id"] = st.session_state.user_id
     logger.debug(f"Creating seance with : {meteo_data}")
-    response = requests.post(f"{Config.BACKEND_URL}/seances/", json=meteo_data)
+    headers = {"Authorization": f"Bearer {st.session_state['token']}"}
+    response = requests.post(f"{Config.BACKEND_URL}/seances/", json=meteo_data, headers=headers)
+    if response.status_code == 403:  # Code corresponding to token expiration
+        st.warning("🔄 Access token expired. Attempting refresh...")
+        refresh_access_token()
+        headers = {"Authorization": f"Bearer {st.session_state['token']}"}
+        response = requests.post(f"{Config.BACKEND_URL}/seances/", json=meteo_data, headers=headers)
     if response.status_code == 200: 
         logger.info("seance created!")
     else : 
@@ -32,8 +40,12 @@ def update_session_seance():
 
 try :
     backend_url = Config.BACKEND_URL
-    headers = {"Content-Type": "application/json"}
-    response = requests.get(f"{backend_url}/seances/{st.session_state.user_id}/", headers=headers)
+    headers = {"Authorization": f"Bearer {st.session_state['token']}"}
+    response = requests.get(f"{backend_url}/seances/", headers=headers)
+    if response.status_code == 403:  # Code corresponding to token expiration
+        st.warning("🔄 Access token expired. Attempting refresh...")
+        refresh_access_token()
+        st.rerun()
     seances = response.json()
     logger.info(f"Accessed seance for user {st.session_state.user_id}")
     if len(seances) == 0:

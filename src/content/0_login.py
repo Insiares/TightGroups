@@ -16,6 +16,8 @@ def login(username : str, password : str):
         # Register user id in session
         logger.debug(f"response : {response.json()}")
         st.session_state.user_id = response.json()["user_id"]
+        st.session_state.token = response.json()["access_token"]
+        st.session_state.refresh_token = response.json()["refresh_token"]
         return response.json()["access_token"]
     else : 
         st.error("Login failed!")
@@ -87,7 +89,7 @@ with st.form("login_form"):
     if submitted:
         token = login(username, password)
         if token is not None:
-            st.session_state.token = token
+            # st.session_state.token = token
             logger.info(f"Token assigned for {username}")
             st.success("Login successful!")
             st.rerun()

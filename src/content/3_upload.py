@@ -3,6 +3,7 @@ import requests
 from src.config import Config, logger
 import base64
 from io import BytesIO
+from components.auth import refresh_access_token
 
 st.header("Upload Image")
 
@@ -22,21 +23,37 @@ if st.button("Upload Image") and uploaded_file is not None:
     img_b64 = base64.b64encode(img).decode("utf-8")
     files = { "file" : (uploaded_file.name, BytesIO(img), "image/jpeg")}
     payload =  {"setup_id": st.session_state.setup_id, "seance_id": st.session_state.seance_id}
-
-    response = requests.post(f"{Config.BACKEND_URL}/upload/", data=payload, files=files)
+    headers = {"Authorization": f"Bearer {st.session_state['token']}"}
+    response = requests.post(f"{Config.BACKEND_URL}/upload/", data=payload, files=files, headers = headers)
     #response = requests.post(f"{backend_url}/upload/", json=payload, files = files)
+    if response.status_code == 403:  # Code corresponding to token expiration
+        st.warning("🔄 Access token expired. Attempting refresh...")
+        refresh_access_token()
+        headers = {"Authorization": f"Bearer {st.session_state['token']}"}
+        response = requests.post(f"{Config.BACKEND_URL}/upload/", data=payload, files=files, headers = headers)
     if response.status_code == 200: 
         # retrieve image_id from response and run inference
         image_id = response.json()["id"]
         logger.info(f"image_id : {image_id}")
         payload = {"image_id": image_id, "seance_id": st.session_state.seance_id}
         with st.spinner("Running inference..."):
-            response = requests.post(f"{Config.BACKEND_URL}/inference/{st.session_state.seance_id}/{image_id}/")
-        
+            response = requests.post(f"{Config.BACKEND_URL}/inference/{st.session_state.seance_id}/{image_id}/", headers = headers, json=payload)
+            if response.status_code == 403:  # Code corresponding to token expiration
+                st.warning("🔄 Access token expired. Attempting refresh...")
+                refresh_access_token()
+                headers = {"Authorization": f"Bearer {st.session_state['token']}"}
+                response = requests.post(f"{Config.BACKEND_URL}/inference/{st.session_state.seance_id}/{image_id}/", headers = headers, json=payload)
+
         st.write(f"Predicted group size : {response.json()}")
         
         #TODO : func to display img
-        img_response = requests.get(f"{Config.BACKEND_URL}/images/{image_id}/")
+        img_response = requests.get(f"{Config.BACKEND_URL}/images/{image_id}/", headers = headers)
+        if img_response.status_code == 403:  # Code corresponding to token expiration
+            st.warning("🔄 Access token expired. Attempting refresh...")
+            refresh_access_token()
+            headers = {"Authorization": f"Bearer {st.session_state['token']}"}
+            img_response = requests.get(f"{Config.BACKEND_URL}/images/{image_id}/", headers = headers)
+
         logger.debug(f"img response : {img_response.json()}")
         img_treated_filepath = img_response.json()
         #display image :

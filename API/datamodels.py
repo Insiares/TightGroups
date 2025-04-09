@@ -77,8 +77,9 @@ class Score(BaseModel):
 class Token(BaseModel):
     access_token: str
     refresh_token: str
+    user_id: int
     token_type: str
 
 
 class TokenData(BaseModel):
-    refresh_token: strt
+    refresh_token: str

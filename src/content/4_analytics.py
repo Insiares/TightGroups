@@ -21,13 +21,15 @@ if "plot" not in st.session_state.keys():
 def get_analytics() -> pd.DataFrame:
     try :
         backend_url = Config.BACKEND_URL
-        headers = {"Content-Type": "application/json"}
-        response = requests.get(f"{backend_url}/scores/{st.session_state.user_id}/", headers=headers)
+        headers = {"Authorization": f"Bearer {st.session_state['token']}"}
+        response = requests.get(f"{backend_url}/scores/", headers=headers)
         # analytics = response.json()
         if response.status_code == 200:
             data = response.json()
             logger.info(f"Accessed analytics for user {st.session_state.user_id}")
             df = pd.DataFrame(data)
+            df["created_at"] = pd.to_datetime(df["created_at"], unit="ms")
+            # logger.debug(df)
             return df 
         else : 
             return pd.DataFrame()

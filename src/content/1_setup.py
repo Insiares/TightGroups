@@ -4,6 +4,7 @@ import requests
 from src.config import Config, logger
 import pandas as pd 
 import time
+from components.auth import refresh_access_token
 st.title("Setup")
 
 
@@ -12,8 +13,14 @@ if "registering" not in st.session_state.keys() :
 
 def submit_new_setup(gear,name, ammo, position, drill):
     logger.info(f"Creating setup with : {name},{gear}, {ammo}, {position}, {drill}")
+    headers = {"Authorization": f"Bearer {st.session_state['token']}"}
     payload = {"user_id": st.session_state.user_id, "gear": gear, "name":name, "ammo": ammo, "position": position, "drills": drill}
-    response = requests.post(f"{Config.BACKEND_URL}/setups/", json=payload)
+    response = requests.post(f"{Config.BACKEND_URL}/setups/", headers=headers, json=payload)
+    if response.status_code == 403:  # Code corresponding to token expiration
+        st.warning("🔄 Access token expired. Attempting refresh...")
+        refresh_access_token()
+        headers = {"Authorization": f"Bearer {st.session_state['token']}"}
+        response = requests.post(f"{Config.BACKEND_URL}/setups/", headers=headers, json=payload)
     if response.status_code == 200: 
         logger.info("Setup created!")
     else : 
@@ -26,9 +33,15 @@ def update_session_setup():
         st.session_state.setup_name = df["name"].iloc[edited_df.selection.rows].values[0]
 
 try :
-    backend_url = Config.BACKEND_URL
-    headers = {"Content-Type": "application/json"}
-    response = requests.get(f"{backend_url}/setups/{st.session_state.user_id}/", headers=headers)
+    # headers = {"Content-Type": "application/json"}
+    logger.debug(f" token : {st.session_state['token']}")
+    headers = {"Authorization": f"Bearer {st.session_state['token']}"}
+    logger.debug(f"Headers : {headers}")
+    response = requests.get(f"{Config.BACKEND_URL}/setups/", headers=headers)
+    if response.status_code == 403:  # Code corresponding to token expiration
+        st.warning("🔄 Access token expired. Attempting refresh...")
+        refresh_access_token()
+        st.rerun()
     setups = response.json()
     logger.info(f"Accessed Setup for user {st.session_state.user_id}")
     # logger.debug(f"Setups : {setups}")
