@@ -29,9 +29,16 @@ logger.add(sys.stdout)
 #JWT config
 
 SECRET_KEY = os.getenv("JWT_KEY")
+REFRESH_SECRET_KEY = os.getenv("REFRESH_KEY")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
+REFRESH_TOKEN_EXPIRE_MINUTES = 60*24*7
+# Dict to store valid refresh token for testing, best practice seems to store in debug
+refresh_tokens_dict : dict[str, str] = {}
 
+# Same thing for blacklist
+token_blacklist : set[str] = set()
+refresh_token_blacklsit : set[str] = set()
 # DATABASE_URL = "mysql+pymysql://user:user@localhost/mydb"
 DATABASE_URL = os.getenv("DATABASE_URL")
 engine = create_engine(DATABASE_URL)
@@ -260,7 +267,7 @@ async def inference(seance_id : int, image_id: int, db: Session = Depends(get_db
     logger.debug(f"Inference for seance {seance_id}")
     image_path = db.query(Image).filter(Image.id == image_id).first().file_path
     # model_path = "./runs/detect/train16/weights/best.pt"
-    model_path = "impact_detector16.pt"
+    model_path = "impact_detector_best.pt"
     #extract image name from image_path
     image_name = image_path.split("/")[-1]
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -283,12 +290,10 @@ async def inference(seance_id : int, image_id: int, db: Session = Depends(get_db
 @logger.catch
 @app.post("/inference/test/")
 async def inference_test(db: Session= Depends(get_db)):
-    image_id = 1 
-    # model_path = "./runs/detect/train16/weights/best.pt"
 
-    model_path = "./runs/detect/train32/weights/best.pt"
+    model_path = "impact_detector_best.pt"
     #extract image name from image_path
-    image_path = db.query(Image).filter(Image.id == image_id).first().file_path
+    image_path = "./tests/static/test.jpg"
     image_name = image_path.split("/")[-1]
     current_dir = os.path.dirname(os.path.abspath(__file__))
     input_path = os.path.join(current_dir, os.path.join("images", image_name))
