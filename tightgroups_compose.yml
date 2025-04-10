@@ -39,6 +39,8 @@ properties:
             value: PLACEHOLDER_BACKEND_URL
           - name: JWT_KEY
             value: PLACEHOLDER_JWT_SECRET
+          - name: REFRESH_KEY
+            value: PLACEHOLDER_REFRESH_SECRET
           - name: DATABASE_URL
             value: PLACEHOLDER_DATABASE_URL
         volumeMounts:

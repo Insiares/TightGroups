@@ -479,10 +479,10 @@ def inference(
 # test routes for uptime check
 # @logger.catch
 @app.post("/inference/test/")
-def inference_test(db: Session = Depends(get_db)):
+def inference_test():
     model_path = "impact_detector_best.pt"
     # extract image name from image_path
-    image_path = "./tests/static/test.jpg"
+    image_path = "./tests/static/test_photo.jpg"
     image_name = image_path.split("/")[-1]
     current_dir = os.path.dirname(os.path.abspath(__file__))
     input_path = os.path.join(current_dir, os.path.join("images", image_name))
