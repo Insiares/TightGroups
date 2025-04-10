@@ -1,0 +1,51 @@
+name: Store Validation Status
+
+on:
+  workflow_run:
+    workflows: ["Run code validation"]
+    types:
+      - completed
+
+jobs:
+jobs:
+  store:
+    name: Store Validation Status
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifact
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: validate-code.yml
+          workflow_conclusion: completed
+          name: validation-status
+          path: ./status
+          github_token: ${{ secrets.MY_TOKEN }}
+      
+      - name: Check validation status
+        id: check
+        run: |
+          if [ ! -f "./status/test_result.txt" ] || [ ! -f "./status/lint_result.txt" ]; then
+            echo "Missing validation files"
+            echo "false" > validation_result.txt
+          else
+            TEST_STATUS=$(cat ./status/test_result.txt)
+            LINT_STATUS=$(cat ./status/lint_result.txt)
+            
+            if [ "$TEST_STATUS" == "1" ] && [ "$LINT_STATUS" == "1" ]; then
+              echo "All validations passed"
+              echo "true" > validation_result.txt
+            else
+              echo "Validations failed"
+              echo "false" > validation_result.txt
+            fi
+          fi
+          
+          cat validation_result.txt
+      
+      - name: Upload validation result
+        uses: actions/upload-artifact@v4
+        with:
+          name: validation-result
+          path: validation_result.txt
+          retention-days: 7
+
