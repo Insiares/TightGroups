@@ -4,6 +4,7 @@ from src.config import Config, logger
 
 st.title("Register")
 
+
 def show_terms_and_conditions():
     terms_content = """
     # Terms and Conditions
@@ -41,21 +42,25 @@ def show_terms_and_conditions():
     """
     return terms_content
 
+
 terms_container = st.empty()
 
 
-def register(email : str, username : str, password : str):
+def register(email: str, username: str, password: str):
     payload = {"username": username, "password": password, "email": email}
-    headers = {"Content-Type" : "application/x-www-form-urlencoded"}
-    response = requests.post(f"{Config.BACKEND_URL}/users", data=payload, headers = headers)
+    headers = {"Content-Type": "application/x-www-form-urlencoded"}
+    response = requests.post(
+        f"{Config.BACKEND_URL}/users", data=payload, headers=headers
+    )
     if response.status_code == 200:
         logger.debug(f"response : {response.json()}")
         # reroute to login pages
         st.success("Registration successful!")
         st.rerun()
-    else : 
+    else:
         st.error("Registration failed!")
         return None
+
 
 with st.form("register_form"):
     email = st.text_input("Email")
@@ -68,11 +73,10 @@ with st.form("register_form"):
         terms_link = st.markdown("I accept the [Terms and Conditions](#)")
         if st.session_state.get("show_terms", False):
             terms_container.markdown(show_terms_and_conditions())
-    
+
     # Make the terms link clickable
     if terms_link:
         st.session_state["show_terms"] = not st.session_state.get("show_terms", False)
-
 
     submitted = st.form_submit_button("Register")
 

@@ -1,0 +1,95 @@
+name : Run code validation
+
+on : 
+  push:
+    branches:
+      - dev
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      tightdb:
+        image: mariadb:latest
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: mydb
+          MYSQL_USER: user
+          MYSQL_PASSWORD: user
+        ports:
+          - "3306:3306"
+
+    env:
+      DATABASE_URL: "mysql+pymysql://user:user@localhost:3306/mydb"
+      JWT_KEY: ${{ secrets.JWT_SECRET }}
+      REFRESH_KEY: ${{ secrets.REFRESH_SECRET }}
+      METEO_USERNAME: ${{ secrets.METEO_USERNAME }}
+      METEO_PASSWORD: ${{ secrets.METEO_PASSWORD }}
+      BACKEND_URL : ${{ secrets.BACKEND_URL }}
+      
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: 0.5.13
+        enable-cache: true
+
+    - name: "Set up Python"
+      uses: actions/setup-python@v5
+      with:
+        python-version-file: ".python-version"
+
+    - name: install project
+      run: uv sync --all-extras --dev
+
+
+
+    - name: run tests
+      run: uv run pytest tests || echo "Tests failed" >> test_status.txt
+      continue-on-error: true
+
+    - name: Check if tests passed
+      id: test_check
+      run: |
+        if [ -f test_status.txt ]; then
+          echo "Tests failed"
+          echo "0" > test_result.txt
+        else
+          echo "Tests passed"
+          echo "1" > test_result.txt
+        fi
+
+    - name: Store test result
+      run: echo $? > test_status.txt
+
+
+    - name: install ruff
+      run : uv add ruff
+    - name: run ruff
+      run: uv run ruff check || echo "Linting failed" >> lint_status.txt
+      continue-on-error: true
+
+    - name: Check if linting passed
+      id: lint_check
+      run: |
+        if [ -f lint_status.txt ]; then
+          echo "Linting failed"
+          echo "0" > lint_result.txt
+        else
+          echo "Linting passed"
+          echo "1" > lint_result.txt
+        fi
+
+
+
+    - name: Upload validation status
+      uses: actions/upload-artifact@v4
+      with:
+        name: validation-status
+        path: |
+          test_status.txt
+          lint_status.txt
+        retention-days: 1

@@ -1,12 +1,44 @@
 name: Deploy to ACR
 
 on:
-  push:
+  pull_request:
     branches:
       - main
 
+    types:
+      - closed
+
+
+
 jobs:
+  check-validation:
+    name: Check Validation Status
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main' && github.event.pull_request.head.ref == 'dev'
+    runs-on: ubuntu-latest
+    outputs:
+      can_deploy: ${{ steps.check.outputs.can_deploy }}
+    
+    steps:
+      - name: Download validation result
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: store-validation-status.yml
+          name: validation-result
+          path: ./result
+      
+      - name: Check validation result
+        id: check
+        run: |
+          VALIDATION_PASSED=$(cat ./result/validation_result.txt)
+          echo "Validation status: $VALIDATION_PASSED"
+          echo "can_deploy=$VALIDATION_PASSED" >> $GITHUB_OUTPUT
+
+
   deploy:
+    name: Deploy to ACR
+    needs: check-validation
+    if : needs.check-validation.outputs.can_deploy == 'true'
+    
     runs-on: ubuntu-latest
 
     steps:
@@ -60,17 +92,23 @@ jobs:
         ESCAPED_METEO_PASSWORD=$(echo "${{ secrets.METEO_PASSWORD }}" | sed 's/[&|]/\\&/g')
         ESCAPED_BACKEND_URL=$(echo "${{ secrets.BACKEND_URL }}" | sed 's/[&|]/\\&/g')
         ESCAPED_JWT_SECRET=$(echo "${{ secrets.JWT_SECRET }}" | sed 's/[&|]/\\&/g')
+        ESCAPED_REFRESH_SECRET=$(echo "${{ secrets.REFRESH_SECRET }}" | sed 's/[&|]/\\&/g')
         ESCAPED_DATABASE_URL=$(echo "${{ secrets.DATABASE_URL }}" | sed 's/[&|]/\\&/g')
         ESCAPED_SHAREACCOUNT=$(echo "${{ secrets.SHARE_ACCOUNT }}" | sed 's/[&|]/\\&/g')
         ESCAPED_SHAREKEY=$(echo "${{ secrets.SHAREKEY }}" | sed 's/[&|]/\\&/g')
+        ESCAPED_REGISTRY_USERNAME=$(echo "${{ secrets.REGISTRY_USERNAME }}" | sed 's/[&|]/\\&/g')
+        ESCAPED_REGISTRY_PASSWORD=$(echo "${{ secrets.REGISTRY_PASSWORD }}" | sed 's/[&|]/\\&/g')
 
         sed -i "s|PLACEHOLDER_METEO_USERNAME|$ESCAPED_METEO_USERNAME|g" tightgroups_compose.yml
         sed -i "s|PLACEHOLDER_METEO_PASSWORD|$ESCAPED_METEO_PASSWORD|g" tightgroups_compose.yml
         sed -i "s|PLACEHOLDER_BACKEND_URL|$ESCAPED_BACKEND_URL|g" tightgroups_compose.yml
         sed -i "s|PLACEHOLDER_JWT_SECRET|$ESCAPED_JWT_SECRET|g" tightgroups_compose.yml
+        sed -i "s|PLACEHOLDER_REFRESH_SECRET|$ESCAPED_REFRESH_SECRET|g" tightgroups_compose.yml
         sed -i "s|PLACEHOLDER_DATABASE_URL|$ESCAPED_DATABASE_URL|g" tightgroups_compose.yml
         sed -i "s|PLACEHOLDER_SHAREACCOUNT|$ESCAPED_SHAREACCOUNT|g" tightgroups_compose.yml
         sed -i "s|PLACEHOLDER_SHAREKEY|$ESCAPED_SHAREKEY|g" tightgroups_compose.yml
+        sed -i "s|PLACEHOLDER_REGISTRY_USERNAME|$ESCAPED_REGISTRY_USERNAME|g" tightgroups_compose.yml
+        sed -i "s|PLACEHOLDER_REGISTRY_PASSWORD|$ESCAPED_REGISTRY_PASSWORD|g" tightgroups_compose.yml
 
            az container create \
           --resource-group devia_25 \

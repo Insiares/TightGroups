@@ -5,12 +5,12 @@ import os
 import datetime
 from API.ml.scanner.scan import DocScanner
 
-@logger.catch
-def predict_groupsize(image_path : str , model_path :str, output_path : str):
 
+@logger.catch
+def predict_groupsize(image_path: str, model_path: str, output_path: str):
     model = YOLO(model_path)
     now = datetime.datetime.now()
-    filename = f'detection_{now.strftime("%Y-%m-%d_%H-%M-%S")}.txt'
+    filename = f"detection_{now.strftime('%Y-%m-%d_%H-%M-%S')}.txt"
     outputdir = "./API/ml/runs/"
 
     if not os.path.exists(outputdir):
@@ -18,12 +18,21 @@ def predict_groupsize(image_path : str , model_path :str, output_path : str):
 
     scanner = DocScanner()
     image = scanner.scan(image_path)
-
     # image = cv2.imread(image_path)
-    image = cv2.resize(image, (640, 640))
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    image = cv2.GaussianBlur(image, (5,5), 0)
-    results = model.predict(image, save_txt=True, save_conf=True, retina_masks=True, iou=0.5, conf=0.5, project = outputdir, name = filename, exist_ok = True)
+    image_r = cv2.resize(image, (640, 640))
+    image_c = cv2.cvtColor(image_r, cv2.COLOR_GRAY2RGB)
+    image_b = cv2.GaussianBlur(image_c, (5, 5), 0)
+    results = model.predict(
+        image_b,
+        save_txt=True,
+        save_conf=True,
+        retina_masks=True,
+        iou=0.5,
+        conf=0.6,
+        project=outputdir,
+        name=filename,
+        exist_ok=True,
+    )
 
     max_x = 0
     max_y = 0
@@ -31,17 +40,12 @@ def predict_groupsize(image_path : str , model_path :str, output_path : str):
     min_y = image.shape[0]
 
     for box in results[0].boxes:
-
         x1, y1, x2, y2 = map(int, box.xyxy[0].tolist())
-        confidence = box.conf[0]
-        # label = results[0].names[int(box.cls[0])]  # Get class name from model's names list
         max_x = max(max_x, x2)
         max_y = max(max_y, y2)
         min_x = min(min_x, x1)
         min_y = min(min_y, y1)
-        cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 1)
-        #label_text = f"{label} {confidence:.2f}"
-        # cv2.putText(image, label_text, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+        cv2.rectangle(image_c, (x1, y1), (x2, y2), (0, 255, 0), 1)
 
     group_size_pixel = max(max_x - min_x, max_y - min_y)
     paper_size = 209.0
@@ -49,7 +53,7 @@ def predict_groupsize(image_path : str , model_path :str, output_path : str):
     mm_per_pixel = paper_size / image_size
 
     group_size = group_size_pixel * mm_per_pixel
-    image = cv2.resize(image, (640, 640))
-    cv2.imwrite(output_path, image)
+    # image = cv2.resize(image, (640, 640))
+    cv2.imwrite(output_path, image_c)
 
     return group_size

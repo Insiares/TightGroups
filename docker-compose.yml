@@ -28,6 +28,10 @@ services:
     environment:
       DATABASE_URL: "mysql+pymysql://user:user@tightdb/mydb"
       JWT_KEY: "secret_key"
+      REFRESH_KEY: "refresh_secret_key"
+      BACKEND_URL: "http://localhost:8000"
+      METEO_USERNAME: "PLACEHOLDER_METEO_USERNAME"
+      METEO_PASSWORD: "PLACEHOLDER_METEO_PASSWORD"
 
   uptime-kuma:
     image: louislam/uptime-kuma:latest
