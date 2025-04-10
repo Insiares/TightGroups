@@ -22,7 +22,7 @@ jobs:
       - name: Download validation result
         uses: dawidd6/action-download-artifact@v6
         with:
-          workflow: store-artifact.yml
+          workflow: store_artifact.yml
           name: validation-result
           path: .
       
