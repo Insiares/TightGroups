@@ -45,7 +45,13 @@ jobs:
     - name: install project
       run: uv sync --all-extras --dev
 
-
+    - name: clean up resulsts
+      run: |
+        rm -rf test_result.txt
+        rm -rf lint_result.txt
+        rm -rf test_status.txt
+        rm -rf lint_status.txt
+      continue-on-error: true
 
     - name: run tests
       run: uv run pytest tests || echo "Tests failed" >> test_status.txt
@@ -62,8 +68,6 @@ jobs:
           echo "1" > test_result.txt
         fi
 
-    - name: Store test result
-      run: echo $? > test_status.txt
 
 
     - name: install ruff
@@ -90,6 +94,6 @@ jobs:
       with:
         name: validation-status
         path: |
-          test_status.txt
-          lint_status.txt
+          test_result.txt
+          lint_result.txt
         retention-days: 1
