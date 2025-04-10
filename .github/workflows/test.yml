@@ -16,10 +16,10 @@ jobs:
       with:
         version: 0.5.13
 
-    - name: setup python
-      run: uv python install 
-      with : 
-      python-version-file: ".python-version"
+    - name: "Set up Python"
+      uses: actions/setup-python@v5
+      with:
+        python-version-file: ".python-version"
 
     - name: install project
       run: uv sync --all-extras --dev
