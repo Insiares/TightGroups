@@ -7,17 +7,29 @@ RUN apt-get update && apt-get install -y \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
-ADD . /app
+
 WORKDIR /app
-RUN uv sync --frozen
-# RUN pip install --no-cache-dir uv
-# # COPY requirements.txt .
-# COPY pyproject.toml .
-# RUN uv sync --all-extras
-# # RUN pip install --no-cache-dir -r requirements.txt
-#
-# COPY . .
+
+# Copy dependency files first (for better layer caching)
+COPY pyproject.toml* requirements.txt* ./
+
+# Install dependencies using uv
+RUN if [ -f "pyproject.toml" ]; then \
+      uv pip install --system -e .; \
+    elif [ -f "requirements.txt" ]; then \
+      uv pip install --system -r requirements.txt; \
+    else \
+      echo "No dependency file found"; \
+      exit 1; \
+    fi
+
+# Add the rest of the code
+COPY . .
+
+# Create directory for output files with proper permissions
+# RUN mkdir -p /app/API/images && chmod 777 /app/API/images
 
 EXPOSE 8000 8501
-ENV PATH = "./venv/bin:$PATH"
+
 CMD ["bash", "start.sh"]
+

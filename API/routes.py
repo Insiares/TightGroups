@@ -423,8 +423,8 @@ def get_image(
 # @logger.catch
 @app.post("/inference/")
 def inference(
-    seance_id: int,
-    image_id: int,
+    seance_id: int = Form(...),
+    image_id: int = Form(...),
     user=Depends(get_current_user),
     db: Session = Depends(get_db),
 ):

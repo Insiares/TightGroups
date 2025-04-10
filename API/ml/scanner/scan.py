@@ -342,7 +342,7 @@ class DocScanner(object):
         # basename = os.path.basename(image_path)
         # cv2.imwrite(OUTPUT_DIR + '/' + basename, warped)
         # print("Proccessed " + basename)
-        return warped
+        return sharpen
 
 
 def get_ext(f):

@@ -5,6 +5,78 @@ import base64
 from io import BytesIO
 from components.auth import refresh_access_token
 
+
+def upload(file, payload):
+    try:
+        headers = {"Authorization": f"Bearer {st.session_state['token']}"}
+        response = requests.post(
+            f"{Config.BACKEND_URL}/upload/", data=payload, files=file, headers=headers
+        )
+        if response.status_code == 403:  # Code corresponding to token expiration
+            st.warning("🔄 Access token expired. Attempting refresh...")
+            refresh_access_token()
+            headers = {"Authorization": f"Bearer {st.session_state['token']}"}
+            response = requests.post(
+                f"{Config.BACKEND_URL}/upload/", data=payload, files=file, headers=headers
+            )
+        if response.status_code == 200:
+            return response
+        else:
+            st.error("Upload failed!")
+            return None
+
+    except Exception as e:
+        logger.error(f"Error: {e}")
+        return None
+
+
+def run_inference(payload):
+    try:
+        headers = {"Authorization": f"Bearer {st.session_state['token']}"}
+        response = requests.post(
+            f"{Config.BACKEND_URL}/inference/", headers=headers, data=payload
+        )
+        if response.status_code == 403:  # Code corresponding to token expiration
+            st.warning("🔄 Access token expired. Attempting refresh...")
+            refresh_access_token()
+            headers = {"Authorization": f"Bearer {st.session_state['token']}"}
+            response = requests.post(
+                f"{Config.BACKEND_URL}/inference/", headers=headers, data=payload
+            )
+        if response.status_code == 200:
+            st.success("Inference successful!")
+            return response
+        else:
+            st.error("Inference failed!")
+            return None
+
+    except Exception as e:
+        logger.error(f"Error: {e}")
+
+
+def get_image(image_id):
+    try:
+        headers = {"Authorization": f"Bearer {st.session_state['token']}"}
+        response = requests.get(
+            f"{Config.BACKEND_URL}/images/{image_id}/", headers=headers
+        )
+        if response.status_code == 403:  # Code corresponding to token expiration
+            st.warning("🔄 Access token expired. Attempting refresh...")
+            refresh_access_token()
+            headers = {"Authorization": f"Bearer {st.session_state['token']}"}
+            response = requests.get(
+                f"{Config.BACKEND_URL}/images/{image_id}/", headers=headers
+            )
+        if response.status_code == 200:
+            return response
+        else:
+            st.error("Image not found!")
+            return None
+
+    except Exception as e:
+        logger.error(f"Error: {e}")
+
+
 st.header("Upload Image")
 
 st.write(
@@ -22,62 +94,28 @@ if st.button("Upload Image") and uploaded_file is not None:
     img_b64 = base64.b64encode(img).decode("utf-8")
     files = {"file": (uploaded_file.name, BytesIO(img), "image/jpeg")}
     payload = {
-        "setup_id": st.session_state.setup_id,
-        "seance_id": st.session_state.seance_id,
+        "seance_id": str(st.session_state.seance_id),
+        "setup_id": str(st.session_state.setup_id),
+
     }
-    headers = {"Authorization": f"Bearer {st.session_state['token']}"}
-    response = requests.post(
-        f"{Config.BACKEND_URL}/upload/", data=payload, files=files, headers=headers
-    )
-    # response = requests.post(f"{backend_url}/upload/", json=payload, files = files)
-    if response.status_code == 403:  # Code corresponding to token expiration
-        st.warning("🔄 Access token expired. Attempting refresh...")
-        refresh_access_token()
-        headers = {"Authorization": f"Bearer {st.session_state['token']}"}
-        response = requests.post(
-            f"{Config.BACKEND_URL}/upload/", data=payload, files=files, headers=headers
-        )
-    if response.status_code == 200:
-        # retrieve image_id from response and run inference
+
+    response = upload(files, payload)
+
+    if response : 
         image_id = response.json()["id"]
         logger.info(f"image_id : {image_id}")
-        payload = {"image_id": image_id, "seance_id": st.session_state.seance_id}
+        payload = {"image_id": str(image_id), "seance_id": str(st.session_state.seance_id)}
         with st.spinner("Running inference..."):
-            response = requests.post(
-                f"{Config.BACKEND_URL}/inference/{st.session_state.seance_id}/{image_id}/",
-                headers=headers,
-                json=payload,
-            )
-            if response.status_code == 403:  # Code corresponding to token expiration
-                st.warning("🔄 Access token expired. Attempting refresh...")
-                refresh_access_token()
-                headers = {"Authorization": f"Bearer {st.session_state['token']}"}
-                response = requests.post(
-                    f"{Config.BACKEND_URL}/inference/{st.session_state.seance_id}/{image_id}/",
-                    headers=headers,
-                    json=payload,
-                )
+            response_inference = run_inference(payload)
 
-        st.write(f"Predicted group size : {response.json()}")
+        if response_inference:
+            st.write(f"Predicted group size : {response_inference.json()}")
 
-        # TODO : func to display img
-        img_response = requests.get(
-            f"{Config.BACKEND_URL}/images/{image_id}/", headers=headers
-        )
-        if img_response.status_code == 403:  # Code corresponding to token expiration
-            st.warning("🔄 Access token expired. Attempting refresh...")
-            refresh_access_token()
-            headers = {"Authorization": f"Bearer {st.session_state['token']}"}
-            img_response = requests.get(
-                f"{Config.BACKEND_URL}/images/{image_id}/", headers=headers
-            )
-
-        logger.debug(f"img response : {img_response.json()}")
-        img_treated_filepath = img_response.json()
-        # display image :
-        st.image(img_treated_filepath)
+            img_response = get_image(image_id)
+            img_treated_filepath = img_response.json()
+            # display image :
+            st.image(img_treated_filepath)
 
     else:
         st.error("Upload failed!")
         logger.error("Upload failed!")
-        logger.error(f"response : {response.json()}")
