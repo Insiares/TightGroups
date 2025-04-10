@@ -26,7 +26,7 @@ properties:
 
     - name: tightgroups
       properties:
-        image: insiares/tightgroups:latest
+        image : tightgroups.azurecr.io/tightgroups
         ports:
           - port: 8501
           - port: 8000
