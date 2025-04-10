@@ -14,7 +14,9 @@ Models/
 flet_app.py
 main_draft_st.py
 runs/
-API/images/*
-API/images_treated/*
+API/images/*.jpg
+API/images_treated/*.jpg
+API/images/*.txt
+API/images_treated/*.txt
 !API/images/.gitkeep
 !API/images_treated/.gitkeep
