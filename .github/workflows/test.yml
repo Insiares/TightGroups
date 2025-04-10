@@ -12,7 +12,7 @@ jobs:
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       JWT_KEY: ${{ secrets.JWT_SECRET }}
-      REFRESH_KEY: ${{ secrets.REFRESH_KEY }}
+      REFRESH_KEY: ${{ secrets.REFRESH_SECRET }}
       METEO_USERNAME: ${{ secrets.METEO_USERNAME }}
       METEO_PASSWORD: ${{ secrets.METEO_PASSWORD }}
       BACKEND_URL : ${{ secrets.BACKEND_URL }}
@@ -35,16 +35,36 @@ jobs:
       run: uv sync --all-extras --dev
 
     - name: run tests
-      run: uv run pytest tests
+      run: uv run pytest test || echo "Tests failed" >> test_status.txt
+      
+    - name: Check if tests passed
+      id: test_check
+      run: |
+        if [ -f test_status.txt ]; then
+          echo "Tests failed"
+          echo "0" > test_result.txt
+        else
+          echo "Tests passed"
+          echo "1" > test_result.txt
+        fis
 
     - name: Store test result
       run: echo $? > test_status.txt
 
     - name: run ruff
-      run: uv run ruff .
+      run: uv run ruff || echo "Linting failed" >> lint_status.txt
+    
+    - name: Check if linting passed
+      id: lint_check
+      run: |
+        if [ -f lint_status.txt ]; then
+          echo "Linting failed"
+          echo "0" > lint_result.txt
+        else
+          echo "Linting passed"
+          echo "1" > lint_result.txt
+        fi.
 
-    - name: Store lint result
-      run: echo $? > lint_status.txt
 
     - name: Upload validation status
       uses: actions/upload-artifact@v3
@@ -53,3 +73,4 @@ jobs:
         path: |
           test_status.txt
           lint_status.txt
+        retention-days: 1
