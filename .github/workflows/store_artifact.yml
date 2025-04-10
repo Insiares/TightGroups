@@ -12,13 +12,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download artifact
-        uses: dawidd6/action-download-artifact@v2
+        uses: dawidd6/action-download-artifact@v6
         with:
           workflow: test.yml
           workflow_conclusion: completed
           name: validation-status
           path: .
-          github_token: ${{ secrets.MY_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Check validation status
         id: check
