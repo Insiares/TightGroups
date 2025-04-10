@@ -14,16 +14,16 @@ jobs:
       - name: Download artifact
         uses: dawidd6/action-download-artifact@v2
         with:
-          workflow: validate-code.yml
+          workflow: test.yml
           workflow_conclusion: completed
           name: validation-status
-          path: ./status
+          path: .
           github_token: ${{ secrets.MY_TOKEN }}
       
       - name: Check validation status
         id: check
         run: |
-          if [ ! -f "./status/test_result.txt" ] || [ ! -f "./status/lint_result.txt" ]; then
+          if [ ! -f "test_result.txt" ] || [ ! -f "lint_result.txt" ]; then
             echo "Missing validation files"
             echo "false" > validation_result.txt
           else
