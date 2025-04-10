@@ -48,7 +48,7 @@ jobs:
 
 
     - name: run tests
-      run: uv run pytest test || echo "Tests failed" >> test_status.txt
+      run: uv run pytest tests || echo "Tests failed" >> test_status.txt
       continue-on-error: true
 
     - name: Check if tests passed
