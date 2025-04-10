@@ -4,7 +4,7 @@ properties:
   containers:
     - name: tightdb
       properties:
-        image: mariadb:latest
+        image: tightgroups.azurecr.io/mariadb:latest
         environmentVariables:
           - name: MYSQL_ROOT_PASSWORD
             value: root
@@ -52,7 +52,7 @@ properties:
 
     - name: kuma
       properties:
-        image: louislam/uptime-kuma:latest
+        image: tightgroups.azurecr.io/uptime-kuma:latest
       #  environmentVariables:
        #   - name: DB_TYPE
         #    value: sqlite
