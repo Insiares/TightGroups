@@ -71,7 +71,10 @@ def get_db():
         db.close()
 
 
-def authenticate_user(user_name: str, password: str):
+def authenticate_user(user_name: str, password: str) -> User:
+    """
+    Function to validate authentification of user
+    """
     logger.info(f"Authenticating user {user_name}")
     user = get_user(user_name)
     if not user:
@@ -94,7 +97,14 @@ def get_user(user_name: str | None):
 
 # this function takes place of verify_token when called as a dependency
 # @logger.catch()
-def get_current_user(token: str = Depends(oauth2_scheme)):
+def get_current_user(token: str = Depends(oauth2_scheme)) -> dict[str, str]:
+    """
+    Dependency to validate token validity and extract user_id from token's sub
+
+    args : encoded token (str)
+
+    returns : decoded token (dict)
+    """
     if token in token_blacklist:
         logger.error("Token is blacklisted")
         raise HTTPException(
@@ -123,7 +133,16 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         )
 
 
-def create_access_token(data: dict, expires_delta: timedelta | None = None):
+def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
+    """Create a new access token for the user.
+
+    Args:
+        data (dict): The data to be included in the access token.
+        expires_delta (timedelta, optional): The expiration time for the token.
+
+    Returns:
+        str: The encoded access token.
+    """
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta

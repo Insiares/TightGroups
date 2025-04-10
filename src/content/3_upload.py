@@ -17,7 +17,10 @@ def upload(file, payload):
             refresh_access_token()
             headers = {"Authorization": f"Bearer {st.session_state['token']}"}
             response = requests.post(
-                f"{Config.BACKEND_URL}/upload/", data=payload, files=file, headers=headers
+                f"{Config.BACKEND_URL}/upload/",
+                data=payload,
+                files=file,
+                headers=headers,
             )
         if response.status_code == 200:
             return response
@@ -96,15 +99,17 @@ if st.button("Upload Image") and uploaded_file is not None:
     payload = {
         "seance_id": str(st.session_state.seance_id),
         "setup_id": str(st.session_state.setup_id),
-
     }
 
     response = upload(files, payload)
 
-    if response : 
+    if response:
         image_id = response.json()["id"]
         logger.info(f"image_id : {image_id}")
-        payload = {"image_id": str(image_id), "seance_id": str(st.session_state.seance_id)}
+        payload = {
+            "image_id": str(image_id),
+            "seance_id": str(st.session_state.seance_id),
+        }
         with st.spinner("Running inference..."):
             response_inference = run_inference(payload)
 
