@@ -288,7 +288,7 @@ def create_user(user: dm.UserCreate, db: Session = Depends(get_db)):
     return user
 
 
-@app.post("/seances/", response_model=dm.Seance)
+@app.post("/seances/")
 def create_seance(
     seance: dm.MeteoData, user=Depends(get_current_user), db: Session = Depends(get_db)
 ):
@@ -388,6 +388,7 @@ def upload_image(
     db: Session = Depends(get_db),
 ):
     file_path = f"./API/images/{file.filename}"
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
     with open(file_path, "wb") as image_file:
         logger.info(f"Saving image to {file_path}")
 
@@ -402,9 +403,7 @@ def upload_image(
 
 
 @app.get("/users/images/")
-def get_user_images(
-    user=Depends(get_current_user), db: Session = Depends(get_db)
-):
+def get_user_images(user=Depends(get_current_user), db: Session = Depends(get_db)):
     # logger.debug(f"Getting images for user {user_id}")
     images = db.query(Image).join(Setup).filter(Setup.user_id == user["sub"]).all()
     return images

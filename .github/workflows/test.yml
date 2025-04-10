@@ -1,0 +1,44 @@
+name : Run code validation
+
+on : 
+  push:
+    branches:
+      - dev
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: 0.5.13
+
+    - name: setup python
+      run: uv python install 
+      with : 
+      python-version-file: ".python-version"
+
+    - name: install project
+      run: uv sync --all-extras --dev
+
+    - name: run tests
+      run: uv run pytest tests
+
+    - name: run ruff
+      run: uv run ruff .
+
+
+# save artifact of job 
+
+    - uses: actions/upload-artifact@v3
+      with:
+        name: pytest-results
+        path: .pytest_cache
+
+    - uses: actions/upload-artifact@v3
+      with:
+        name: ruff-results
+        path: .ruff_cache

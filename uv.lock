@@ -844,12 +844,12 @@ wheels = [
 
 [[package]]
 name = "ocrd-fork-pylsd"
-version = "0.0.8"
+version = "0.0.3"
 source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "numpy" },
+sdist = { url = "https://files.pythonhosted.org/packages/b8/4f/d61c4d2f73cfd8c66c5bfca341ea5cf115fd596015452b875d347becb247/ocrd-fork-pylsd-0.0.3.tar.gz", hash = "sha256:728c88f2c53372c3614d8f0ffcb610939fab867b08b72603a85b202e9818938f", size = 46759 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/6a/df/12fba60b9b3e141f515d69edd539bd066294d6b3be79b12450888819986d/ocrd_fork_pylsd-0.0.3-py3-none-any.whl", hash = "sha256:758fc14dc1a76c174397ce9dae6db1f9b3dc530b361767a9714538dd01b9bf03", size = 47554 },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/81/42/2e116b7e62fbb6a4cd723771e6775292057f6f034697af6f3b7b4bb7023d/ocrd-fork-pylsd-0.0.8.tar.gz", hash = "sha256:6b89106aff57739befc00ca7d91c27ab3bc7a7bf2bb5999c273c9232abbcf977", size = 24826 }
 
 [[package]]
 name = "opencv-python"
@@ -1706,7 +1706,7 @@ requires-dist = [
     { name = "nvidia-nvjitlink-cu12", specifier = "==12.4.127" },
     { name = "nvidia-nvtx-cu12", specifier = "==12.4.127" },
     { name = "oauthlib", specifier = "==3.2.2" },
-    { name = "ocrd-fork-pylsd", specifier = ">=0.0.8" },
+    { name = "ocrd-fork-pylsd", specifier = "==0.0.3" },
     { name = "opencv-python", specifier = "==4.10.0.84" },
     { name = "packaging", specifier = "==24.2" },
     { name = "pandas", specifier = "==2.2.3" },
