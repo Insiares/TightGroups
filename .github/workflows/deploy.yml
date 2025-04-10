@@ -5,8 +5,39 @@ on:
     branches:
       - main
 
+    types:
+      - closed
+
+
+
 jobs:
+  check-validation:
+    name: Check Validation Status
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main' && github.event.pull_request.head.ref == 'dev'
+    runs-on: ubuntu-latest
+    outputs:
+      can_deploy: ${{ steps.check.outputs.can_deploy }}
+    
+    steps:
+      - name: Download validation result
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: store-validation-status.yml
+          name: validation-result
+          path: ./result
+      
+      - name: Check validation result
+        id: check
+        run: |
+          VALIDATION_PASSED=$(cat ./result/validation_result.txt)
+          echo "Validation status: $VALIDATION_PASSED"
+          echo "can_deploy=$VALIDATION_PASSED" >> $GITHUB_OUTPUT
+
+
   deploy:
+    name: Deploy to ACR
+    needs: check-validation
+    if : needs.check-validation.outputs.can_deploy == 'true'
     
     runs-on: ubuntu-latest
 

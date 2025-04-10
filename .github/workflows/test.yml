@@ -8,6 +8,15 @@ on :
 jobs:
   test:
     runs-on: ubuntu-latest
+
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      JWT_KEY: ${{ secrets.JWT_SECRET }}
+      REFRESH_KEY: ${{ secrets.REFRESH_KEY }}
+      METEO_USERNAME: ${{ secrets.METEO_USERNAME }}
+      METEO_PASSWORD: ${{ secrets.METEO_PASSWORD }}
+      BACKEND_URL : ${{ secrets.BACKEND_URL }}
+      
     steps:
     - uses: actions/checkout@v4
 
@@ -15,6 +24,7 @@ jobs:
       uses: astral-sh/setup-uv@v5
       with:
         version: 0.5.13
+        enable-cache: true
 
     - name: "Set up Python"
       uses: actions/setup-python@v5
@@ -27,18 +37,19 @@ jobs:
     - name: run tests
       run: uv run pytest tests
 
+    - name: Store test result
+      run: echo $? > test_status.txt
+
     - name: run ruff
       run: uv run ruff .
 
+    - name: Store lint result
+      run: echo $? > lint_status.txt
 
-# save artifact of job 
-    #
-    # - uses: actions/upload-artifact@v3
-    #   with:
-    #     name: pytest-results
-    #     path: .pytest_cache
-    #
-    # - uses: actions/upload-artifact@v3
-    #   with:
-    #     name: ruff-results
-    #     path: .ruff_cache
+    - name: Upload validation status
+      uses: actions/upload-artifact@v3
+      with:
+        name: validation-status
+        path: |
+          test_status.txt
+          lint_status.txt
