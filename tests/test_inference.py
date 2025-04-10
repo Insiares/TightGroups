@@ -43,7 +43,7 @@ def test_inference_test(mock_db):
         patch("API.routes.predict_groupsize", return_value=3) as mock_predict,
         patch("os.path.dirname", return_value="/test/dir"),
     ):
-        result = inference_test(mock_db)
+        result = inference_test()
 
         assert result == 3
         mock_predict.assert_called_once()
