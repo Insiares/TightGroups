@@ -12,8 +12,7 @@ jobs:
     services:
       tightdb:
         image: mariadb:latest
-        container_name: TightDB_container_test
-        environment:
+        env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: mydb
           MYSQL_USER: user
