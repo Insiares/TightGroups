@@ -36,7 +36,8 @@ jobs:
 
     - name: run tests
       run: uv run pytest test || echo "Tests failed" >> test_status.txt
-      
+      continue-on-error: true
+
     - name: Check if tests passed
       id: test_check
       run: |
@@ -46,14 +47,15 @@ jobs:
         else
           echo "Tests passed"
           echo "1" > test_result.txt
-        fis
+        fi
 
     - name: Store test result
       run: echo $? > test_status.txt
 
     - name: run ruff
       run: uv run ruff || echo "Linting failed" >> lint_status.txt
-    
+      continue-on-error: true
+
     - name: Check if linting passed
       id: lint_check
       run: |
@@ -63,7 +65,8 @@ jobs:
         else
           echo "Linting passed"
           echo "1" > lint_result.txt
-        fi.
+        fi
+
 
 
     - name: Upload validation status
