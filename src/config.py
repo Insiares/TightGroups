@@ -9,7 +9,7 @@ load_dotenv()
 class Config:
     BACKEND_URL = os.getenv("BACKEND_URL")
     APP_NAME = "TightGroups"
-    VERSION = "0.9.6"
+    VERSION = "0.9.8"
 
 
 logger = loguru.logger
