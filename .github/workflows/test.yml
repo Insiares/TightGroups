@@ -21,7 +21,7 @@ jobs:
           - "3306:3306"
 
     env:
-      DATABASE_URL: "mysql+pymysql://user:user@tightdb/mydb"
+      DATABASE_URL: "mysql+pymysql://user:user@localhost:3306/mydb"
       JWT_KEY: ${{ secrets.JWT_SECRET }}
       REFRESH_KEY: ${{ secrets.REFRESH_SECRET }}
       METEO_USERNAME: ${{ secrets.METEO_USERNAME }}
@@ -69,7 +69,7 @@ jobs:
     - name: install ruff
       run : uv add ruff
     - name: run ruff
-      run: uv run ruff || echo "Linting failed" >> lint_status.txt
+      run: uv run ruff check || echo "Linting failed" >> lint_status.txt
       continue-on-error: true
 
     - name: Check if linting passed
