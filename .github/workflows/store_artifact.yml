@@ -27,8 +27,8 @@ jobs:
             echo "Missing validation files"
             echo "false" > validation_result.txt
           else
-            TEST_STATUS=$(cat ./status/test_result.txt)
-            LINT_STATUS=$(cat ./status/lint_result.txt)
+            TEST_STATUS=$(cat test_result.txt)
+            LINT_STATUS=$(cat lint_result.txt)
             
             if [ "$TEST_STATUS" == "1" ] && [ "$LINT_STATUS" == "1" ]; then
               echo "All validations passed"

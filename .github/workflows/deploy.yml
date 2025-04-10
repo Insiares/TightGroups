@@ -20,16 +20,16 @@ jobs:
     
     steps:
       - name: Download validation result
-        uses: dawidd6/action-download-artifact@v2
+        uses: dawidd6/action-download-artifact@v6
         with:
-          workflow: store-validation-status.yml
+          workflow: store-artifact.yml
           name: validation-result
-          path: ./result
+          path: .
       
       - name: Check validation result
         id: check
         run: |
-          VALIDATION_PASSED=$(cat ./result/validation_result.txt)
+          VALIDATION_PASSED=$(cat validation_result.txt)
           echo "Validation status: $VALIDATION_PASSED"
           echo "can_deploy=$VALIDATION_PASSED" >> $GITHUB_OUTPUT
 
