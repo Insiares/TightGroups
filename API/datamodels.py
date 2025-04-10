@@ -42,11 +42,18 @@ class Ammo(BaseModel):
     CB2: Optional[float] = None
     model_config = ConfigDict(from_attributes=True)
 
-
+class MeteoData(BaseModel):
+    temp_C: float
+    wind_speed: float
+    wind_gust: float
+    wind_dir: float
+    pressure: float
+    precipitation: float
+    
 class Seance(BaseModel):
     id: Optional[int] = None
-    user_id: int
-    # created_at: date
+    user_id:  int
+    created_at: Optional[date] = None
     temp_C: float
     wind_speed: float
     wind_gust: float

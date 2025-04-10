@@ -93,7 +93,7 @@ def get_user(user_name: str | None):
 
 
 # this function takes place of verify_token when called as a dependency
-@logger.catch()
+# @logger.catch()
 def get_current_user(token: str = Depends(oauth2_scheme)):
     if token in token_blacklist:
         logger.error("Token is blacklisted")
@@ -135,7 +135,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 
-@logger.catch()
+# @logger.catch()
 def verify_token(
     token: str, secret: str
 ) -> dict:  # added secret key to args to test both tokens in the same function
@@ -173,11 +173,11 @@ def create_refresh_token(data: dict) -> str:
 
 
 def check_ammo(existing_ammo: dm.Ammo, db: Session = Depends(get_db)):
-    logger.debug(f"Checking ammo {existing_ammo}, with name {existing_ammo.name}")
+    # logger.debug(f"Checking ammo {existing_ammo}, with name {existing_ammo.name}")
     searched_ammo = db.query(Ammo).filter(Ammo.name == existing_ammo.name).first()
 
     if searched_ammo:
-        logger.debug(f"Found existing ammo {searched_ammo.name}")
+        # logger.debug(f"Found existing ammo {searched_ammo.name}")
         return searched_ammo.id
 
     new_ammo = Ammo(name=str(existing_ammo.name))
@@ -187,13 +187,13 @@ def check_ammo(existing_ammo: dm.Ammo, db: Session = Depends(get_db)):
     db.refresh(new_ammo)
     new_ammo_id = db.query(Ammo).filter(Ammo.name == existing_ammo.name).first()
 
-    logger.debug(f"Created new ammo {new_ammo.name}")
+    # logger.debug(f"Created new ammo {new_ammo.name}")
 
     return new_ammo_id.id
 
 
 @app.post("/token", response_model=dm.Token)
-async def login_for_access_token(
+def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
 ):
     user = authenticate_user(form_data.username, form_data.password)
@@ -222,18 +222,21 @@ async def login_for_access_token(
 
 
 # Here is the new route, should be called by the frontend (don't like it but eh)
-@logger.catch()
+# @logger.catch()
 @app.post("/refresh", response_model=dm.Token)
-async def refresh_token(refresh_token: str = Depends(oauth2_scheme)):
+def refresh_token(refresh_token: str = Depends(oauth2_scheme)):
     if refresh_token in refresh_token_blacklsit:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is blacklisted"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Token is blacklisted"
         )
     payload = verify_token(refresh_token, REFRESH_SECRET_KEY)
     username = payload.get("sub")
-    logger.debug("refresh token called")
+    logger.debug(f"refresh token called for user {username}")
+    logger.debug(refresh_tokens_dict)
+    logger.debug(refresh_token)
     # Test the existance of the refresh token in our false DB (dict)
     if username is None or refresh_tokens_dict.get(username) != refresh_token:
+        logger.debug(refresh_tokens_dict.get(username))
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token"
         )
@@ -254,10 +257,10 @@ async def refresh_token(refresh_token: str = Depends(oauth2_scheme)):
 
 
 # @app.get("/users/me")
-# async def read_users_me(current_user: dm.User = Depends(get_current_user)):
+# def read_users_me(current_user: dm.User = Depends(get_current_user)):
 #     return current_user
 @app.post("/logout")
-async def logout(token: str = Depends(oauth2_scheme), refresh_token: str = Body(...)):
+def logout(token: str = Depends(oauth2_scheme), refresh_token: str = Body(...)):
     """Invalidate the access token to log out the user."""
     if token in token_blacklist:
         raise HTTPException(
@@ -276,7 +279,7 @@ async def logout(token: str = Depends(oauth2_scheme), refresh_token: str = Body(
 
 
 @app.post("/users/", response_model=dm.User)
-async def create_user(user: dm.UserCreate, db: Session = Depends(get_db)):
+def create_user(user: dm.UserCreate, db: Session = Depends(get_db)):
     hashed_password = get_password_hash(user.password)
     user = User(email=user.email, username=user.username, password_hash=hashed_password)
     db.add(user)
@@ -286,8 +289,8 @@ async def create_user(user: dm.UserCreate, db: Session = Depends(get_db)):
 
 
 @app.post("/seances/", response_model=dm.Seance)
-async def create_seance(
-    seance: dm.Seance, user=Depends(get_current_user), db: Session = Depends(get_db)
+def create_seance(
+    seance: dm.MeteoData, user=Depends(get_current_user), db: Session = Depends(get_db)
 ):
     try:
         seance = Seance(
@@ -302,7 +305,7 @@ async def create_seance(
         db.add(seance)
         db.commit()
         db.refresh(seance)
-        logger.info(f"Created seance {seance.id}")
+        # logger.info(f"Created seance {seance.id}")
         return seance
     except Exception as e:
         logger.error(f"Error creating seance: {e}")
@@ -310,13 +313,13 @@ async def create_seance(
 
 
 @app.get("/seances/")
-async def get_seances(user=Depends(get_current_user), db: Session = Depends(get_db)):
+def get_seances(user=Depends(get_current_user), db: Session = Depends(get_db)):
     seances = db.query(Seance).filter(Seance.user_id == user["sub"]).all()
     return seances
 
 
 @app.post("/setups/", response_model=dm.Setup)
-async def create_setup(
+def create_setup(
     setup: dm.Setup, user=Depends(get_current_user), db: Session = Depends(get_db)
 ):
     try:
@@ -324,8 +327,8 @@ async def create_setup(
         ammo_name = setup.ammo
         ammo_to_check = Ammo(name=ammo_name)
         ammo = check_ammo(ammo_to_check, db)
-        logger.debug(f"Ammo recieved : {ammo}")
-        logger.debug(f"Setup : {setup}")
+        # logger.debug(f"Ammo recieved : {ammo}")
+        # logger.debug(f"Setup : {setup}")
         setup = Setup(
             user_id=user["sub"],
             name=setup.name,
@@ -337,7 +340,7 @@ async def create_setup(
         db.add(setup)
         db.commit()
         db.refresh(setup)
-        logger.info(f"Created setup {setup.id}")
+        # logger.info(f"Created setup {setup.id}")
         return setup
 
     except Exception as e:
@@ -345,11 +348,11 @@ async def create_setup(
         raise e
 
 
-@logger.catch()
+# @logger.catch()
 @app.get("/setups/")
-async def get_setups(user=Depends(get_current_user), db: Session = Depends(get_db)):
+def get_setups(user=Depends(get_current_user), db: Session = Depends(get_db)):
     # join ammo table to get ammo name
-    logger.debug(f"Getting setups for user {user}")
+    # logger.debug(f"Getting setups for user {user}")
     setups = (
         db.query(Setup)
         .add_column(Ammo.name.label("ammo_name"))
@@ -371,13 +374,13 @@ async def get_setups(user=Depends(get_current_user), db: Session = Depends(get_d
 
 
 @app.get("/gears/")
-async def get_gears(user=Depends(get_current_user), db: Session = Depends(get_db)):
+def get_gears(user=Depends(get_current_user), db: Session = Depends(get_db)):
     gears = db.query(Setup).filter(Setup.user_id == user["sub"]).distinct(Setup.gear)
     return gears
 
 
 @app.post("/upload/")
-async def upload_image(
+def upload_image(
     setup_id: int = Form(...),
     seance_id: int = Form(...),
     file: UploadFile = File(...),
@@ -399,7 +402,7 @@ async def upload_image(
 
 
 @app.get("/users/images/")
-async def get_user_images(
+def get_user_images(
     user=Depends(get_current_user), db: Session = Depends(get_db)
 ):
     # logger.debug(f"Getting images for user {user_id}")
@@ -408,7 +411,7 @@ async def get_user_images(
 
 
 @app.get("/images/{image_id}/")
-async def get_image(
+def get_image(
     image_id: int, user=Depends(get_current_user), db: Session = Depends(get_db)
 ):
     logger.debug(f"Getting image {image_id}")
@@ -418,9 +421,9 @@ async def get_image(
     return image_treadted_path
 
 
-@logger.catch
+# @logger.catch
 @app.post("/inference/")
-async def inference(
+def inference(
     seance_id: int,
     image_id: int,
     user=Depends(get_current_user),
@@ -456,9 +459,9 @@ async def inference(
 
 
 # test routes for uptime check
-@logger.catch
+# @logger.catch
 @app.post("/inference/test/")
-async def inference_test(db: Session = Depends(get_db)):
+def inference_test(db: Session = Depends(get_db)):
     model_path = "impact_detector_best.pt"
     # extract image name from image_path
     image_path = "./tests/static/test.jpg"
@@ -473,7 +476,7 @@ async def inference_test(db: Session = Depends(get_db)):
 
 
 @app.get("/scores/")
-async def get_scores(user=Depends(get_current_user), db: Session = Depends(get_db)):
+def get_scores(user=Depends(get_current_user), db: Session = Depends(get_db)):
     query_not_dumb = f"""
 
     SELECT scores.group_size
@@ -504,7 +507,7 @@ async def get_scores(user=Depends(get_current_user), db: Session = Depends(get_d
 
 
 @app.get("/health/")
-async def health():
+def health():
     files = glob.glob("API/ml/runs/detection_*/labels/*.txt")
     files.sort(key=lambda x: os.path.getmtime(x), reverse=True)
     last_50_files = files[:50]
