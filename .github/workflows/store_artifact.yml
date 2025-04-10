@@ -8,7 +8,7 @@ on:
 
 jobs:
   store:
-    name: Store Validation Status
+    name: Store Validation
     runs-on: ubuntu-latest
     steps:
       - name: Download artifact

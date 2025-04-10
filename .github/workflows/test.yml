@@ -9,8 +9,20 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    services:
+      tightdb:
+        image: mariadb:latest
+        container_name: TightDB_container_test
+        environment:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: mydb
+          MYSQL_USER: user
+          MYSQL_PASSWORD: user
+        ports:
+          - "3306:3306"
+
     env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATABASE_URL: "mysql+pymysql://user:user@tightdb/mydb"
       JWT_KEY: ${{ secrets.JWT_SECRET }}
       REFRESH_KEY: ${{ secrets.REFRESH_SECRET }}
       METEO_USERNAME: ${{ secrets.METEO_USERNAME }}
@@ -34,6 +46,8 @@ jobs:
     - name: install project
       run: uv sync --all-extras --dev
 
+
+
     - name: run tests
       run: uv run pytest test || echo "Tests failed" >> test_status.txt
       continue-on-error: true
@@ -52,6 +66,9 @@ jobs:
     - name: Store test result
       run: echo $? > test_status.txt
 
+
+    - name: install ruff
+      run : uv add ruff
     - name: run ruff
       run: uv run ruff || echo "Linting failed" >> lint_status.txt
       continue-on-error: true
