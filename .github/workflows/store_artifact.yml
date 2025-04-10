@@ -7,7 +7,6 @@ on:
       - completed
 
 jobs:
-jobs:
   store:
     name: Store Validation Status
     runs-on: ubuntu-latest
