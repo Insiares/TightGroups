@@ -48,7 +48,8 @@ properties:
           requests:
             cpu: 0.5
             memoryInGb: 1
-        
+
+
     - name: kuma
       properties:
         image: louislam/uptime-kuma:latest
@@ -68,6 +69,11 @@ properties:
         volumeMounts:
           - name: azure-file-share
             mountPath: app/data/
+
+  imageRegistryCredentials:
+    - server: tightgroups.azurecr.io
+      username: PLACEHOLDER_REGISTRY_USERNAME
+      password: PLACEHOLDER_REGISTRY_PASSWORD
 
   osType: Linux
   volumes:

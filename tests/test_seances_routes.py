@@ -1,7 +1,7 @@
 # tests/test_seance_routes.py
 import pytest
 from unittest.mock import patch, MagicMock
-
+from API.Database.Models import Seance
 from API.routes import create_seance, get_seances
 
 def test_create_seance(mock_db):
