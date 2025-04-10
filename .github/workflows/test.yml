@@ -32,13 +32,13 @@ jobs:
 
 
 # save artifact of job 
-
-    - uses: actions/upload-artifact@v3
-      with:
-        name: pytest-results
-        path: .pytest_cache
-
-    - uses: actions/upload-artifact@v3
-      with:
-        name: ruff-results
-        path: .ruff_cache
+    #
+    # - uses: actions/upload-artifact@v3
+    #   with:
+    #     name: pytest-results
+    #     path: .pytest_cache
+    #
+    # - uses: actions/upload-artifact@v3
+    #   with:
+    #     name: ruff-results
+    #     path: .ruff_cache
