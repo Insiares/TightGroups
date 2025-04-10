@@ -1,17 +1,20 @@
-import streamlit as st 
+import streamlit as st
 import requests
 from src.config import Config, logger
 import time
+
 st.title("Login")
 
-if "registering" not in st.session_state.keys() : 
+if "registering" not in st.session_state.keys():
     st.session_state.registering = False
 
 
-def login(username : str, password : str):
+def login(username: str, password: str):
     payload = {"username": username, "password": password}
-    headers = {"Content-Type" : "application/x-www-form-urlencoded"}
-    response = requests.post(f"{Config.BACKEND_URL}/token", data=payload, headers = headers)
+    headers = {"Content-Type": "application/x-www-form-urlencoded"}
+    response = requests.post(
+        f"{Config.BACKEND_URL}/token", data=payload, headers=headers
+    )
     if response.status_code == 200:
         # Register user id in session
         logger.debug(f"response : {response.json()}")
@@ -19,27 +22,29 @@ def login(username : str, password : str):
         st.session_state.token = response.json()["access_token"]
         st.session_state.refresh_token = response.json()["refresh_token"]
         return response.json()["access_token"]
-    else : 
+    else:
         st.error("Login failed!")
         return None
 
 
-def register(email : str, username : str, password : str):
+def register(email: str, username: str, password: str):
     payload = {"username": username, "password": password, "email": email}
-    headers = {"Content-Type" : "application/json"}
-    response = requests.post(f"{Config.BACKEND_URL}/users/", json=payload, headers = headers)
+    headers = {"Content-Type": "application/json"}
+    response = requests.post(
+        f"{Config.BACKEND_URL}/users/", json=payload, headers=headers
+    )
     if response.status_code == 200:
         logger.debug(f"response : {response.json()}")
         # reroute to login pages
         st.success("Registration successful!")
         time.sleep(2)
-        return 'OK'
-    else : 
+        return "OK"
+    else:
         st.error("Registration failed!")
-        logger.error(f"Error : {response.json()}"
-                     )
+        logger.error(f"Error : {response.json()}")
         time.sleep(5)
         return None
+
 
 def show_terms_and_conditions():
     terms_content = """
@@ -79,8 +84,6 @@ def show_terms_and_conditions():
     return terms_content
 
 
-
-
 with st.form("login_form"):
     username = st.text_input("Username")
     password = st.text_input("Password", type="password")
@@ -97,7 +100,6 @@ with st.form("login_form"):
 if st.button("Don't Have an account? Register") or st.session_state.registering:
     st.session_state.registering = True
     with st.form("register_form"):
-        
         email = st.text_input("Email")
         username = st.text_input("Username")
         password = st.text_input("Password", type="password")
@@ -112,12 +114,10 @@ if st.button("Don't Have an account? Register") or st.session_state.registering:
         if submitted:
             if not terms_accepted:
                 st.error("You must accept the Terms and Conditions to register.")
-            else: 
+            else:
                 result = register(email, username, password)
-                if result == 'OK':
-                    with st.spinner('Redirecting to login page...'):
+                if result == "OK":
+                    with st.spinner("Redirecting to login page..."):
                         time.sleep(2)
                         st.session_state.registering = False
                         st.rerun()
-                        
-   

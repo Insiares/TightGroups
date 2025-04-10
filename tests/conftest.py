@@ -2,18 +2,12 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from fastapi.testclient import TestClient
-from API.routes import app, get_db, ini_db
-from API.Database.Models import Base, User, Setup, Image, Score, Ammo, Seance
+from API.routes import app, get_db
+from API.Database.Models import Base
 import os
 import sys
-from API.auth import get_password_hash
 
-sys.path.insert(0,
-                os.path.abspath(
-                    os.path.join(
-                        os.path.dirname(__file__),
-                        "../"
-                    ) ))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))
 
 print("==========")
 for path in sys.path:
@@ -21,14 +15,18 @@ for path in sys.path:
 print("==========")
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 
 @pytest.fixture(scope="module", autouse=True)
 def init_db():
     Base.metadata.create_all(bind=engine)
     yield
     Base.metadata.drop_all(bind=engine)
+
 
 @pytest.fixture(scope="function")
 def session():
@@ -50,10 +48,9 @@ def test_client(session):
     app.dependency_overrides[get_db] = override_get_db
     with TestClient(app) as client:
         yield client
-    
 
 
-'''    
+"""    
 @pytest.fixture(scope="module", autouse=True)
 def clean_db(session):
     session.query(User).delete()
@@ -61,7 +58,7 @@ def clean_db(session):
     session.query(Setup).delete()
     session.query(Image).delete()
     session.query(Score).delete()
-    session.commit() '''
+    session.commit() """
 '''
 @pytest.fixture(scope="function")
 def session():
