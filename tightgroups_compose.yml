@@ -88,8 +88,8 @@ properties:
         environment:
           - name: "CADDY_ADAPTER"
             value: "caddyfile"
-          - name:"CADDY_CONFIG"
-            value : "/shared/caddy/config/Caddyfile"
+          - name: "CADDY_CONFIG"
+            value: "/shared/caddy/config/Caddyfile"
         command:
           - "usr/bin/caddy"
           - "run"
