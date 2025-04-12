@@ -78,7 +78,7 @@ properties:
         resources:
           requests:
             cpu: 0.5
-            memoryInGB: 0.5
+            memoryInGb: 0.5
         ports:
         - port: 80
         - port: 443
@@ -98,10 +98,10 @@ properties:
           - "--adapter"
           - "caddyfile"
 
-    imageRegistryCredentials:
-    - server: tightgroups.azurecr.io
-      username: PLACEHOLDER_REGISTRY_USERNAME
-      password: PLACEHOLDER_REGISTRY_PASSWORD
+  imageRegistryCredentials:
+  - server: tightgroups.azurecr.io
+    username: PLACEHOLDER_REGISTRY_USERNAME
+    password: PLACEHOLDER_REGISTRY_PASSWORD
 
   osType: Linux
   volumes:
