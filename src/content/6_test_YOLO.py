@@ -5,7 +5,7 @@ from loguru import logger
 
 st.title("Testing Detection")
 model = YOLO(
-    "/home/insia/Documents/Projects/target_detector/trarget_detector/train4/weights/best.pt"
+    "./target_detector_beta.pt"
 )
 if "captured_image" not in st.session_state:
     st.session_state.captured_image = None
@@ -59,7 +59,7 @@ rtc_config = RTCConfiguration(
 ctx = webrtc_streamer(
     key="Detect target",
     video_processor_factory=VideoProcessor,
-    # rtc_configuration=rtc_config,
+    rtc_configuration=rtc_config,
     # video_frame_callback=capture_callback,
     # async_processing=True,
     media_stream_constraints={"video": True, "audio": False},
