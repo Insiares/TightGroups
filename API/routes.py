@@ -61,7 +61,7 @@ app = FastAPI(
     title="TightGroups API",
     description="API for TightGroups",
     version="0.0.1",
-    openapi_url="/tightgroups_api/getdocs/openapi.json",
+    openapi_url="/getdocs/openapi.json",
 )
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
