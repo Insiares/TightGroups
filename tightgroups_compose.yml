@@ -85,7 +85,7 @@ properties:
         volumeMounts:
         - name: azure-file-share
           mountPath: /shared
-        environment:
+        environmentVariables:
           - name: "CADDY_ADAPTER"
             value: "caddyfile"
           - name: "CADDY_CONFIG"
