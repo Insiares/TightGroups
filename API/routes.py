@@ -57,7 +57,12 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 router = APIRouter()
 
-app = FastAPI()
+app = FastAPI(
+    title="TightGroups API",
+    description="API for TightGroups",
+    version="0.0.1",
+    openapi_url="/tightgroups_api/openapi.json",
+)
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 ini_db(DATABASE_URL)

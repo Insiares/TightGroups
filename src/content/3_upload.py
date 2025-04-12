@@ -8,6 +8,7 @@ from components.auth import refresh_access_token
 if "image_id" not in st.session_state.keys():
     st.session_state.image_id = None
 
+
 def upload(file, payload):
     try:
         headers = {"Authorization": f"Bearer {st.session_state['token']}"}
@@ -58,26 +59,25 @@ def run_inference(payload):
     except Exception as e:
         logger.error(f"Error: {e}")
 
+
 def handle_failure(image_id):
     try:
         headers = {"Authorization": f"Bearer {st.session_state['token']}"}
         data = {"image_id": image_id}
         response = requests.post(
-            f"{Config.BACKEND_URL}/detection_failure/", 
-            headers=headers,
-            data=data
+            f"{Config.BACKEND_URL}/detection_failure/", headers=headers, data=data
         )
         if response.status_code == 403:  # Code corresponding to token expiration
             st.warning("🔄 Access token expired. Attempting refresh...")
             refresh_access_token()
             headers = {"Authorization": f"Bearer {st.session_state['token']}"}
             response = requests.post(
-                f"{Config.BACKEND_URL}/detection_failure/", 
-                headers=headers,
-                data=data
+                f"{Config.BACKEND_URL}/detection_failure/", headers=headers, data=data
             )
         if response.status_code == 200:
-            st.warning("Thanks for the feedback, your failed prediction run has been removed from your data.")
+            st.warning(
+                "Thanks for the feedback, your failed prediction run has been removed from your data."
+            )
             return response
         else:
             st.error("Image not found!")
@@ -120,15 +120,13 @@ if st.session_state.seance_id is None:
 if st.session_state.setup_id is None:
     st.error("You need to select a setup first!")
 # option = st.radio("Take a picture or upload one ?", ("Take a picture", "Upload an image"))
-upload_map = {
-    0 : ":material/photo_camera:",
-    1 : ":material/upload:"
-}
-option = st.segmented_control("Take a picture or upload one ?", 
-                              options = upload_map.keys(), 
-                              format_func = lambda option : upload_map[option]
-                              ,
-                              selection_mode= "single")
+upload_map = {0: ":material/photo_camera:", 1: ":material/upload:"}
+option = st.segmented_control(
+    "Take a picture or upload one ?",
+    options=upload_map.keys(),
+    format_func=lambda option: upload_map[option],
+    selection_mode="single",
+)
 # st.write(option)
 # st.write(upload_map[option])
 # option = st.toggle("Upload a local image instead of taking one", False)
@@ -136,7 +134,6 @@ if not option:
     uploaded_file = st.camera_input("Take a picture...")
 else:
     uploaded_file = st.file_uploader("Choose an image...", type="jpg")
-
 
 
 if st.button("Upload Image") and uploaded_file is not None:
@@ -171,7 +168,6 @@ if st.button("Upload Image") and uploaded_file is not None:
             # display image :
             st.image(img_treated_filepath)
             # st.write("If something went wrong, please let us know! (you can always retake the photo with improve lighting / focus)")
-          
 
     else:
         st.error("Upload failed!")
@@ -179,16 +175,17 @@ if st.button("Upload Image") and uploaded_file is not None:
 
 if st.session_state.image_id:
     option_map = {
-                0 : ":material/thumb_up:",
-                1 : ":material/thumb_down:",
-            }
+        0: ":material/thumb_up:",
+        1: ":material/thumb_down:",
+    }
     selection = st.segmented_control(
         "What do you think about this prediction ?",
-        options = option_map.keys(), 
+        options=option_map.keys(),
         format_func=lambda x: option_map[x],
         selection_mode="single",
     )
     if selection == 1:
-        st.write("Sorry to hear that! You can always retake the photo with improve lighting / focus")
+        st.write(
+            "Sorry to hear that! You can always retake the photo with improve lighting / focus"
+        )
         handle_failure(st.session_state.image_id)
-

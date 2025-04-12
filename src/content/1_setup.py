@@ -11,6 +11,7 @@ st.title("Setup")
 if "registering" not in st.session_state.keys():
     st.session_state.registering = False
 
+
 def get_ammo():
     headers = {"Authorization": f"Bearer {st.session_state['token']}"}
     response = requests.get(f"{Config.BACKEND_URL}/ammo/", headers=headers)
@@ -24,6 +25,7 @@ def get_ammo():
     else:
         st.error(f"❌ Request failed with status code {response.status_code}.")
         return response
+
 
 def submit_new_setup(gear, name, ammo, position, drill):
     logger.info(f"Creating setup with : {name},{gear}, {ammo}, {position}, {drill}")
@@ -52,6 +54,7 @@ def submit_new_setup(gear, name, ammo, position, drill):
         logger.error("Setup creation error")
     return response
 
+
 @st.dialog("Add a New Setup")
 def new_setup():
     ammo_list = get_ammo()
@@ -76,7 +79,6 @@ def new_setup():
                 st.rerun()
         else:
             st.error("Setup creation error")
-
 
 
 def update_session_setup():
@@ -137,7 +139,7 @@ try:
     if st.button("Create New Setup"):
         st.session_state.registering = True
         new_setup()
-        
+
 except Exception as e:
     logger.error(f"Error : {e}")
     st.error(f"Error : {e}")

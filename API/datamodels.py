@@ -44,12 +44,12 @@ class Ammo(BaseModel):
 
 
 class MeteoData(BaseModel):
-    temp_C: Optional[float] = None 
+    temp_C: Optional[float] = None
     wind_speed: Optional[float] = None
     wind_gust: Optional[float] = None
     wind_dir: Optional[float] = None
-    pressure: Optional[float] = None 
-    precipitation: Optional[float] = None 
+    pressure: Optional[float] = None
+    precipitation: Optional[float] = None
     created_at: Optional[date] = None
 
 

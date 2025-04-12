@@ -11,7 +11,8 @@ st.title("Seances")
 if "registering" not in st.session_state.keys():
     st.session_state.registering = False
 
-@st.dialog("Add a New Seance")    
+
+@st.dialog("Add a New Seance")
 def register_new_seance_meteo():
     st.write("To track the weather, please enter your postal code.")
     post_code = st.text_input("Post Code")
@@ -35,13 +36,13 @@ def new_seance():
     date = st.date_input("Date")
     if st.button("Submit"):
         payload = {
-                "temp_C": None,      
-                 "wind_speed": None,
-                 "wind_gust": None,
-                 "wind_dir": None,
-                 "pressure": None,
-                 "precipitation": None,
-                 "created_at": str(date),
+            "temp_C": None,
+            "wind_speed": None,
+            "wind_gust": None,
+            "wind_dir": None,
+            "pressure": None,
+            "precipitation": None,
+            "created_at": str(date),
         }
         response = submit_new_seance(payload)
         if (response is not None) & (response.status_code == 200):
@@ -52,7 +53,6 @@ def new_seance():
                 st.rerun()
         else:
             st.error("seance creation error")
-
 
 
 def submit_new_seance(meteo_data):
@@ -135,30 +135,28 @@ try:
 
         # if st.button("Create New seance"):
         logger.debug(f"Selected seance : {st.session_state.seance_id}")
-       
 
-            
+
 except Exception as e:
     logger.error(f"Error : {e}")
     st.error(f"Error : {e}")
-    
+
 if st.button("Add a seance"):
     st.session_state.registering = True
 
 if st.session_state.registering:
     seance_map = {
-            "new" : ":material/partly_cloudy_day:",
-            "old" : ":material/calendar_month:"
-        }
-    new_select = st.segmented_control("New Seance"
-                         , options=list(seance_map.keys())
-                         , format_func = lambda x: seance_map[x]
-                         , selection_mode="single"
-                         )
+        "new": ":material/partly_cloudy_day:",
+        "old": ":material/calendar_month:",
+    }
+    new_select = st.segmented_control(
+        "New Seance",
+        options=list(seance_map.keys()),
+        format_func=lambda x: seance_map[x],
+        selection_mode="single",
+    )
 
     if new_select == "new" and st.session_state.registering:
         register_new_seance_meteo()
     elif new_select == "old" and st.session_state.registering:
         new_seance()
-
-

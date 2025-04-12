@@ -1,12 +1,12 @@
-import streamlit as st 
-import cv2
+import streamlit as st
 from ultralytics import YOLO
 from streamlit_webrtc import webrtc_streamer, VideoProcessorBase, RTCConfiguration
-import numpy as np
 from loguru import logger
 
 st.title("Testing Detection")
-model = YOLO("/home/insia/Documents/Projects/target_detector/trarget_detector/train4/weights/best.pt")
+model = YOLO(
+    "/home/insia/Documents/Projects/target_detector/trarget_detector/train4/weights/best.pt"
+)
 if "captured_image" not in st.session_state:
     st.session_state.captured_image = None
 if "capturing" not in st.session_state:
@@ -22,17 +22,20 @@ def capture_callback(frame):
         logger.debug("image in session state")
     return frame
 
+
 class VideoProcessor(VideoProcessorBase):
     def __init__(self):
-        self.model =  YOLO("/home/insia/Documents/Projects/target_detector/trarget_detector/train4/weights/best.pt")
+        self.model = YOLO(
+            "/home/insia/Documents/Projects/target_detector/trarget_detector/train4/weights/best.pt"
+        )
         self.captured_requested = False
 
     def recv(self, frame):
         img = frame.to_ndarray(format="bgr24")
-        
+
         # Process with your computer vision model
-        result = self.model.predict(img, vid_stride = 25, verbose = False, conf = 0.95)
-        
+        result = self.model.predict(img, vid_stride=25, verbose=False, conf=0.95)
+
         # Draw on the image based on results
         # For example, if your model detects objects, draw bounding boxes:
         # for detection in result.detections:
@@ -41,9 +44,11 @@ class VideoProcessor(VideoProcessorBase):
         #     cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
         #
         #     # Add label
-        #     cv2.putText(img, detection.label, (x, y-10), 
+        #     cv2.putText(img, detection.label, (x, y-10),
         #                 cv2.FONT_HERSHEY_SIMPLEX, 0.9, (36,255,12), 2)
         return frame.from_ndarray(result[0].plot())
+
+
 #
 
 
@@ -57,7 +62,7 @@ ctx = webrtc_streamer(
     rtc_configuration=rtc_config,
     # video_frame_callback=capture_callback,
     # async_processing=True,
-    media_stream_constraints={"video": True, "audio": False}
+    media_stream_constraints={"video": True, "audio": False},
 )
 
 

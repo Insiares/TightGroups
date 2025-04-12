@@ -2,9 +2,11 @@ from datetime import datetime
 from loguru import logger
 import requests
 from requests.auth import HTTPBasicAuth
+from fastapi import HTTPException
 import os
 import dotenv
 from geopy.geocoders import Nominatim
+
 
 def regen_token():
     dotenv.load_dotenv()
@@ -80,6 +82,7 @@ def get_meteo_data(user_input: str = "13800", dt: str = "2024-09-03T19:45:00Z"):
             logger.error(f"Response status code: {response.status_code}")
             logger.error(f"Response content: {response.content}")
             raise HTTPException(status_code=500, detail="Meteo call failed")
+
 
 def format_datetime(dt):
     return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
