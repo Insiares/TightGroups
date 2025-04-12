@@ -11,6 +11,7 @@ setup_page = st.Page("./content/1_setup.py", title="Setup", icon="🔧")
 seance_page = st.Page("./content/2_seance.py", title="Seance", icon="🎯")
 upload_page = st.Page("./content/3_upload.py", title="Upload", icon="📸")
 analytics_page = st.Page("./content/4_analytics.py", title="Analytics", icon="📊")
+test_page = st.Page('./content/6_test_YOLO.py', title="Test YOLO", icon="📊")
 
 
 def logout():
@@ -56,8 +57,8 @@ if st.session_state.token is None:
     pg = st.navigation(pages=[login_page])
 
 else:
-    pg = st.navigation(pages=[setup_page, seance_page, upload_page, analytics_page])
-    logger.info("User logged in, redirecting to Setup page")
+    pg = st.navigation(pages=[setup_page, seance_page, upload_page, analytics_page, test_page])
+    # logger.info("User logged in, redirecting to Setup page")
 
 
 st.set_page_config(
