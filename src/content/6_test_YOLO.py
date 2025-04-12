@@ -4,9 +4,7 @@ from streamlit_webrtc import webrtc_streamer, VideoProcessorBase, RTCConfigurati
 from loguru import logger
 
 st.title("Testing Detection")
-model = YOLO(
-    "./target_detector_beta.pt"
-)
+model = YOLO("./target_detector_beta.pt")
 if "captured_image" not in st.session_state:
     st.session_state.captured_image = None
 if "capturing" not in st.session_state:

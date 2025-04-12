@@ -79,18 +79,23 @@ def get_db():
 
 @logger.catch()
 def merge_ammo_data(db):
-    stats = { "created" : 0,
-              "updated" : 0 }
+    stats = {"created": 0, "updated": 0}
     df = treat_ammo_data()
 
     for _, row in df.iterrows():
         data_dict = row.to_dict()
 
-        #does it exists?
+        # does it exists?
         existing_item = db.query(Ammo).filter(Ammo.name == data_dict["name"]).first()
         if existing_item:
             for key, value in data_dict.items():
-                if hasattr(existing_item, key) and value not in [None, np.nan, 'N/A', 'null', 'Null']:
+                if hasattr(existing_item, key) and value not in [
+                    None,
+                    np.nan,
+                    "N/A",
+                    "null",
+                    "Null",
+                ]:
                     setattr(existing_item, key, value)
             stats["updated"] += 1
         else:
@@ -101,14 +106,18 @@ def merge_ammo_data(db):
 
     return stats
 
+
 @app.on_event("startup")
 def start_up_ammo_merge():
     db = next(get_db())
-    try :
+    try:
         stats = merge_ammo_data(db)
-        logger.info(f"Created {stats['created']} ammo and updated {stats['updated']} ammo on startup")
+        logger.info(
+            f"Created {stats['created']} ammo and updated {stats['updated']} ammo on startup"
+        )
     except Exception as e:
         logger.error(f"Error while merging ammo data: {e}")
+
 
 def authenticate_user(user_name: str, password: str) -> User:
     """
@@ -233,7 +242,7 @@ def create_refresh_token(data: dict) -> str:
 @app.get("/ammo/")
 def get_ammo_list(user=Depends(get_current_user), db: Session = Depends(get_db)):
     # return the list of ammo name
-    ammo_list = [ammo.name for ammo in db.query(Ammo).all()] 
+    ammo_list = [ammo.name for ammo in db.query(Ammo).all()]
     return ammo_list
 
 
@@ -305,7 +314,7 @@ def refresh_token(refresh_token: str = Depends(oauth2_scheme)):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token"
         )
-       
+
     # new tokens
     new_access_token = create_access_token(data={"sub": str(username)})
     new_refresh_token = create_refresh_token(data={"sub": str(username)})
@@ -513,7 +522,7 @@ def inference(
 
     outputh_path = os.path.join(
         "./asf_mount_point/app_storage", os.path.join("images_treated", image_name)
-    ) # That seems less dumb, but still dumb
+    )  # That seems less dumb, but still dumb
     logger.debug(
         f"called predict_groupsize with {model_path}, {image_path}, {outputh_path}"
     )
@@ -582,12 +591,13 @@ def get_scores(user=Depends(get_current_user), db: Session = Depends(get_db)):
     json_result = json.loads(scores.to_json(orient="records"))
     return json_result
 
+
 @app.post("/detection_failure/")
 def remove_fail(
-    image_id = Form(...),
-    user : int = Depends(get_current_user),
-    db : Session = Depends(get_db) ):
-
+    image_id=Form(...),
+    user: int = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     image = db.query(Image).filter(Image.id == image_id).first()
     score = db.query(Score).filter(Score.image_id == image_id).first()
     db.delete(score)
@@ -595,6 +605,7 @@ def remove_fail(
     db.commit()
     logger.warning(f"Deleted failed detection on image {image_id}")
     return
+
 
 @app.get("/health/")
 def health():
