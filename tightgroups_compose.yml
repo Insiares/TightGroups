@@ -91,7 +91,7 @@ properties:
           - name: "CADDY_CONFIG"
             value: "/shared/caddy/config/Caddyfile"
         command:
-          - "usr/bin/caddy"
+          - "/usr/bin/caddy"
           - "run"
           - "--config"
           - "/shared/caddy/config/Caddyfile"
