@@ -61,7 +61,7 @@ app = FastAPI(
     title="TightGroups API",
     description="API for TightGroups",
     version="0.0.1",
-    openapi_url="/tightgroups_api/tightgroups_api/openapi.json",
+    openapi_url="/tightgroups_api/getdocs/openapi.json",
 )
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -452,7 +452,10 @@ def upload_image(
     user=Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    file_path = f".//images/{file.filename}"
+    # file_path = f".//images/{file.filename}"
+    file_path = os.path.join(
+        "./asf_mount_point/app_storage", os.path.join("images", file.filename)
+    )
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
     with open(file_path, "wb") as image_file:
         logger.info(f"Saving image to {file_path}")
@@ -498,13 +501,19 @@ def inference(
     # model_path = "./runs/detect/train16/weights/best.pt"
     model_path = "impact_detector_best.pt"
     # extract image name from image_path
+
     image_name = image_path.split("/")[-1]
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    logger.debug(f"Current directory: {current_dir}")
-    input_path = os.path.join(current_dir, os.path.join("images", image_name))
+
+    # current_dir = os.path.dirname(os.path.abspath(__file__))
+    # logger.debug(f"Current directory: {current_dir}")
+    # input_path = os.path.join(current_dir, os.path.join("images", image_name))
+    # outputh_path = os.path.join(
+    #     current_dir, os.path.join("images_treated", image_name)
+    # )  # TODO : be less dumb than this
+
     outputh_path = os.path.join(
-        current_dir, os.path.join("images_treated", image_name)
-    )  # TODO : be less dumb than this
+        "./asf_mount_point/app_storage", os.path.join("images_treated", image_name)
+    ) # That seems less dumb, but still dumb
     logger.debug(
         f"called predict_groupsize with {model_path}, {input_path}, {outputh_path}"
     )
@@ -530,10 +539,10 @@ def inference_test():
     # extract image name from image_path
     image_path = "./tests/static/test_photo.jpg"
     image_name = image_path.split("/")[-1]
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    input_path = os.path.join(current_dir, os.path.join("images", image_name))
+    # current_dir = os.path.dirname(os.path.abspath(__file__))
+    # input_path = os.path.join(current_dir, os.path.join("images", image_name))
     outputh_path = os.path.join(
-        current_dir, os.path.join("images_treated", image_name)
+        "./asf_mount_point/app_storage", os.path.join("images_treated", image_name)
     )  # TODO : be less dumb than this
     results = predict_groupsize(input_path, model_path, outputh_path)
     return results

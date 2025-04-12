@@ -13,5 +13,5 @@ class Config:
 
 
 logger = loguru.logger
-logger.add("./logs/front_logs.log")
+logger.add("./asf_mount_point/app_storage/logs/front_logs.log")
 logger.add(sys.stdout)
