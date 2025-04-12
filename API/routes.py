@@ -35,7 +35,7 @@ import json
 dotenv.load_dotenv()
 # log config
 
-logger.add("./logs/routes_logs.log")
+logger.add("./asf_mount_point/app_storage/logs/routes_logs.log")
 logger.add(sys.stdout)
 # JWT config
 
@@ -61,7 +61,7 @@ app = FastAPI(
     title="TightGroups API",
     description="API for TightGroups",
     version="0.0.1",
-    openapi_url="/tightgroups_api/openapi.json",
+    openapi_url="/tightgroups_api/tightgroups_api/openapi.json",
 )
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -452,7 +452,7 @@ def upload_image(
     user=Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    file_path = f"./API/images/{file.filename}"
+    file_path = f".//images/{file.filename}"
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
     with open(file_path, "wb") as image_file:
         logger.info(f"Saving image to {file_path}")

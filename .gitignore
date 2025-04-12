@@ -20,3 +20,5 @@ API/images/*.txt
 API/images_treated/*.txt
 !API/images/.gitkeep
 !API/images_treated/.gitkeep
+asf_mount_point/
+
