@@ -24,6 +24,7 @@ import shutil
 import os
 from loguru import logger
 from API.ml.YOLO_inference import predict_groupsize
+from API.ammo.ammo_treatment import treat_ammo_data
 import pandas as pd
 import sys
 import glob
@@ -41,7 +42,7 @@ logger.add(sys.stdout)
 SECRET_KEY = os.getenv("JWT_KEY")
 REFRESH_SECRET_KEY = os.getenv("REFRESH_KEY")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
 REFRESH_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7
 # Dict to store valid refresh token for testing, best practice seems to store in debug
 refresh_tokens_dict: dict[str, str] = {}
@@ -56,7 +57,12 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 router = APIRouter()
 
-app = FastAPI()
+app = FastAPI(
+    title="TightGroups API",
+    description="API for TightGroups",
+    version="0.0.1",
+    openapi_url="/tightgroups_api/openapi.json",
+)
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 ini_db(DATABASE_URL)
@@ -70,6 +76,39 @@ def get_db():
     finally:
         db.close()
 
+
+@logger.catch()
+def merge_ammo_data(db):
+    stats = { "created" : 0,
+              "updated" : 0 }
+    df = treat_ammo_data()
+
+    for _, row in df.iterrows():
+        data_dict = row.to_dict()
+
+        #does it exists?
+        existing_item = db.query(Ammo).filter(Ammo.name == data_dict["name"]).first()
+        if existing_item:
+            for key, value in data_dict.items():
+                if hasattr(existing_item, key) and value not in [None, np.nan, 'N/A', 'null', 'Null']:
+                    setattr(existing_item, key, value)
+            stats["updated"] += 1
+        else:
+            new_item = Ammo(**data_dict)
+            db.add(new_item)
+            stats["created"] += 1
+    db.commit()
+
+    return stats
+
+@app.on_event("startup")
+def start_up_ammo_merge():
+    db = next(get_db())
+    try :
+        stats = merge_ammo_data(db)
+        logger.info(f"Created {stats['created']} ammo and updated {stats['updated']} ammo on startup")
+    except Exception as e:
+        logger.error(f"Error while merging ammo data: {e}")
 
 def authenticate_user(user_name: str, password: str) -> User:
     """
@@ -191,6 +230,13 @@ def create_refresh_token(data: dict) -> str:
     return encoded_jwt
 
 
+@app.get("/ammo/")
+def get_ammo_list(user=Depends(get_current_user), db: Session = Depends(get_db)):
+    # return the list of ammo name
+    ammo_list = [ammo.name for ammo in db.query(Ammo).all()] 
+    return ammo_list
+
+
 def check_ammo(existing_ammo: dm.Ammo, db: Session = Depends(get_db)):
     # logger.debug(f"Checking ammo {existing_ammo}, with name {existing_ammo.name}")
     searched_ammo = db.query(Ammo).filter(Ammo.name == existing_ammo.name).first()
@@ -229,8 +275,8 @@ def login_for_access_token(
     access_token = create_access_token(
         data={"sub": str(user.id)}, expires_delta=access_token_expires
     )
-    refresh_token = create_refresh_token(data={"sub": str(user.username)})
-    refresh_tokens_dict[str(user.username)] = refresh_token
+    refresh_token = create_refresh_token(data={"sub": str(user.id)})
+    refresh_tokens_dict[str(user.id)] = refresh_token
     logger.info(f"User {form_data.username} logged in successfully")
     return {
         "access_token": access_token,
@@ -501,6 +547,10 @@ def get_scores(user=Depends(get_current_user), db: Session = Depends(get_db)):
             ,setups.id 
             , setups.gear
             , ammo.name as ammo
+            , ammo.caliber
+            , ammo.weight
+            , ammo.V_0
+            , ammo.CB1
             , setups.name
             , setups.position
             , setups.drills
@@ -523,6 +573,19 @@ def get_scores(user=Depends(get_current_user), db: Session = Depends(get_db)):
     json_result = json.loads(scores.to_json(orient="records"))
     return json_result
 
+@app.post("/detection_failure/")
+def remove_fail(
+    image_id = Form(...),
+    user : int = Depends(get_current_user),
+    db : Session = Depends(get_db) ):
+
+    image = db.query(Image).filter(Image.id == image_id).first()
+    score = db.query(Score).filter(Score.image_id == image_id).first()
+    db.delete(score)
+    db.delete(image)
+    db.commit()
+    logger.warning(f"Deleted failed detection on image {image_id}")
+    return
 
 @app.get("/health/")
 def health():

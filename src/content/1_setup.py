@@ -12,6 +12,21 @@ if "registering" not in st.session_state.keys():
     st.session_state.registering = False
 
 
+def get_ammo():
+    headers = {"Authorization": f"Bearer {st.session_state['token']}"}
+    response = requests.get(f"{Config.BACKEND_URL}/ammo/", headers=headers)
+    if response.status_code == 403:  # Code corresponding to token expiration
+        st.warning("🔄 Access token expired. Attempting refresh...")
+        refresh_access_token()
+        headers = {"Authorization": f"Bearer {st.session_state['token']}"}
+        response = requests.get(f"{Config.BACKEND_URL}/ammo/", headers=headers)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        st.error(f"❌ Request failed with status code {response.status_code}.")
+        return response
+
+
 def submit_new_setup(gear, name, ammo, position, drill):
     logger.info(f"Creating setup with : {name},{gear}, {ammo}, {position}, {drill}")
     headers = {"Authorization": f"Bearer {st.session_state['token']}"}
@@ -40,6 +55,32 @@ def submit_new_setup(gear, name, ammo, position, drill):
     return response
 
 
+@st.dialog("Add a New Setup")
+def new_setup():
+    ammo_list = get_ammo()
+    gear = st.text_input("Gear")
+    name = st.text_input("Name")
+    ammo = st.selectbox("Ammo", ammo_list)
+    if st.checkbox("Add missing ammo"):
+        ammo = st.text_input("Ammo")
+    position = st.text_input("Position")
+    drill = st.text_input("Drill")
+    submitted = st.button("Submit")
+    if submitted:
+        logger.info(
+            f"Subtimited setup with : {name},{gear}, {ammo}, {position}, {drill}"
+        )
+        response = submit_new_setup(gear, name, ammo, position, drill)
+        if (response is not None) & (response.status_code == 200):
+            with st.spinner("Creation Setup..."):
+                time.sleep(1)
+                st.session_state.registering = False
+                st.success("Setup created!")
+                st.rerun()
+        else:
+            st.error("Setup creation error")
+
+
 def update_session_setup():
     if len(edited_df.selection.rows) > 0:
         st.session_state.setup_id = df["id"].iloc[edited_df.selection.rows].values[0]
@@ -50,9 +91,9 @@ def update_session_setup():
 
 try:
     # headers = {"Content-Type": "application/json"}
-    logger.debug(f" token : {st.session_state['token']}")
+    # logger.debug(f" token : {st.session_state['token']}")
     headers = {"Authorization": f"Bearer {st.session_state['token']}"}
-    logger.debug(f"Headers : {headers}")
+    # logger.debug(f"Headers : {headers}")
     response = requests.get(f"{Config.BACKEND_URL}/setups/", headers=headers)
     if response.status_code == 403:  # Code corresponding to token expiration
         st.warning("🔄 Access token expired. Attempting refresh...")
@@ -95,28 +136,9 @@ try:
             st.success(f"Selected setup : {st.session_state.setup_name}")
             logger.debug(f"Selected setup {st.session_state.setup_id}")
 
-    if st.button("Create New Setup") or st.session_state.registering:
+    if st.button("Create New Setup"):
         st.session_state.registering = True
-        with st.form("new_setup", clear_on_submit=True):
-            name = st.text_input("Name")
-            gear = st.text_input("Gear")
-            ammo = st.text_input("Ammo")
-            position = st.text_input("Position")
-            drill = st.text_input("Drills")
-            submitted = st.form_submit_button("Submit")
-            if submitted:
-                logger.info(
-                    f"Subtimited setup with : {name},{gear}, {ammo}, {position}, {drill}"
-                )
-                response = submit_new_setup(gear, name, ammo, position, drill)
-                if (response is not None) & (response.status_code == 200):
-                    with st.spinner("Creation Setup..."):
-                        time.sleep(2)
-                        st.session_state.registering = False
-                        st.success("Setup created!")
-                        st.rerun()
-                else:
-                    st.error("Setup creation error")
+        new_setup()
 
 except Exception as e:
     logger.error(f"Error : {e}")

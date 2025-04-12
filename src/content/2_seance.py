@@ -12,6 +12,49 @@ if "registering" not in st.session_state.keys():
     st.session_state.registering = False
 
 
+@st.dialog("Add a New Seance")
+def register_new_seance_meteo():
+    st.write("To track the weather, please enter your postal code.")
+    post_code = st.text_input("Post Code")
+    submitted = st.button("Submit")
+    if submitted:
+        meteo_data = get_meteo_data(post_code)
+        logger.info("Subtimited seancei")
+        response = submit_new_seance(meteo_data)
+        if (response is not None) & (response.status_code == 200):
+            with st.spinner("Creating seance..."):
+                time.sleep(1)
+                st.success("seance created!")
+                st.session_state.registering = False
+                st.rerun()
+        else:
+            st.error("seance creation error")
+
+
+@st.dialog("Add a New Seance")
+def new_seance():
+    date = st.date_input("Date")
+    if st.button("Submit"):
+        payload = {
+            "temp_C": None,
+            "wind_speed": None,
+            "wind_gust": None,
+            "wind_dir": None,
+            "pressure": None,
+            "precipitation": None,
+            "created_at": str(date),
+        }
+        response = submit_new_seance(payload)
+        if (response is not None) & (response.status_code == 200):
+            with st.spinner("Creating seance..."):
+                time.sleep(1)
+                st.success("seance created!")
+                st.session_state.registering = False
+                st.rerun()
+        else:
+            st.error("seance creation error")
+
+
 def submit_new_seance(meteo_data):
     # add user id to meteo_data json
     meteo_data["user_id"] = st.session_state.user_id
@@ -92,24 +135,28 @@ try:
 
         # if st.button("Create New seance"):
         logger.debug(f"Selected seance : {st.session_state.seance_id}")
-    if st.button("Create New seance") or st.session_state.registering:
-        st.session_state.registering = True
-        with st.form("new_seance", clear_on_submit=True):
-            post_code = st.text_input("Post Code")
-            submitted = st.form_submit_button("Submit")
-            if submitted:
-                meteo_data = get_meteo_data(post_code)
-                logger.info("Subtimited seancei")
-                response = submit_new_seance(meteo_data)
-                if (response is not None) & (response.status_code == 200):
-                    with st.spinner("Creating seance..."):
-                        time.sleep(2)
-                        st.success("seance created!")
-                        st.session_state.registering = False
-                        st.rerun()
-                else:
-                    st.error("seance creation error")
+
 
 except Exception as e:
     logger.error(f"Error : {e}")
     st.error(f"Error : {e}")
+
+if st.button("Add a seance"):
+    st.session_state.registering = True
+
+if st.session_state.registering:
+    seance_map = {
+        "new": ":material/partly_cloudy_day:",
+        "old": ":material/calendar_month:",
+    }
+    new_select = st.segmented_control(
+        "New Seance",
+        options=list(seance_map.keys()),
+        format_func=lambda x: seance_map[x],
+        selection_mode="single",
+    )
+
+    if new_select == "new" and st.session_state.registering:
+        register_new_seance_meteo()
+    elif new_select == "old" and st.session_state.registering:
+        new_seance()
