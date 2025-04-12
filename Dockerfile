@@ -9,7 +9,9 @@ RUN apt-get update && apt-get install -y \
 
 
 WORKDIR /app
-
+# RUN mkdir -p /app/asf_mountpoint/app_storage/logs
+# RUN mkdir -p /app/asf_mountpoint/app_storage/images
+# RUN mkdir -p /app/asf_mountpoint/app_storage/images_treated
 # Copy dependency files first (for better layer caching)
 COPY pyproject.toml* requirements.txt* ./
 

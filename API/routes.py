@@ -35,7 +35,7 @@ import json
 dotenv.load_dotenv()
 # log config
 
-logger.add("./logs/routes_logs.log")
+logger.add("./asf_mount_point/app_storage/logs/routes_logs.log")
 logger.add(sys.stdout)
 # JWT config
 
@@ -61,7 +61,7 @@ app = FastAPI(
     title="TightGroups API",
     description="API for TightGroups",
     version="0.0.1",
-    openapi_url="/tightgroups_api/openapi.json",
+    openapi_url="/tightgroups_api/getdocs/openapi.json",
 )
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -79,18 +79,23 @@ def get_db():
 
 @logger.catch()
 def merge_ammo_data(db):
-    stats = { "created" : 0,
-              "updated" : 0 }
+    stats = {"created": 0, "updated": 0}
     df = treat_ammo_data()
 
     for _, row in df.iterrows():
         data_dict = row.to_dict()
 
-        #does it exists?
+        # does it exists?
         existing_item = db.query(Ammo).filter(Ammo.name == data_dict["name"]).first()
         if existing_item:
             for key, value in data_dict.items():
-                if hasattr(existing_item, key) and value not in [None, np.nan, 'N/A', 'null', 'Null']:
+                if hasattr(existing_item, key) and value not in [
+                    None,
+                    np.nan,
+                    "N/A",
+                    "null",
+                    "Null",
+                ]:
                     setattr(existing_item, key, value)
             stats["updated"] += 1
         else:
@@ -101,14 +106,18 @@ def merge_ammo_data(db):
 
     return stats
 
+
 @app.on_event("startup")
 def start_up_ammo_merge():
     db = next(get_db())
-    try :
+    try:
         stats = merge_ammo_data(db)
-        logger.info(f"Created {stats['created']} ammo and updated {stats['updated']} ammo on startup")
+        logger.info(
+            f"Created {stats['created']} ammo and updated {stats['updated']} ammo on startup"
+        )
     except Exception as e:
         logger.error(f"Error while merging ammo data: {e}")
+
 
 def authenticate_user(user_name: str, password: str) -> User:
     """
@@ -233,7 +242,7 @@ def create_refresh_token(data: dict) -> str:
 @app.get("/ammo/")
 def get_ammo_list(user=Depends(get_current_user), db: Session = Depends(get_db)):
     # return the list of ammo name
-    ammo_list = [ammo.name for ammo in db.query(Ammo).all()] 
+    ammo_list = [ammo.name for ammo in db.query(Ammo).all()]
     return ammo_list
 
 
@@ -452,7 +461,10 @@ def upload_image(
     user=Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    file_path = f"./API/images/{file.filename}"
+    # file_path = f".//images/{file.filename}"
+    file_path = os.path.join(
+        "./asf_mount_point/app_storage", os.path.join("images", file.filename)
+    )
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
     with open(file_path, "wb") as image_file:
         logger.info(f"Saving image to {file_path}")
@@ -498,17 +510,23 @@ def inference(
     # model_path = "./runs/detect/train16/weights/best.pt"
     model_path = "impact_detector_best.pt"
     # extract image name from image_path
+
     image_name = image_path.split("/")[-1]
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    logger.debug(f"Current directory: {current_dir}")
-    input_path = os.path.join(current_dir, os.path.join("images", image_name))
+
+    # current_dir = os.path.dirname(os.path.abspath(__file__))
+    # logger.debug(f"Current directory: {current_dir}")
+    # input_path = os.path.join(current_dir, os.path.join("images", image_name))
+    # outputh_path = os.path.join(
+    #     current_dir, os.path.join("images_treated", image_name)
+    # )  # TODO : be less dumb than this
+
     outputh_path = os.path.join(
-        current_dir, os.path.join("images_treated", image_name)
-    )  # TODO : be less dumb than this
+        "./asf_mount_point/app_storage", os.path.join("images_treated", image_name)
+    )  # That seems less dumb, but still dumb
     logger.debug(
-        f"called predict_groupsize with {model_path}, {input_path}, {outputh_path}"
+        f"called predict_groupsize with {model_path}, {image_path}, {outputh_path}"
     )
-    results = predict_groupsize(input_path, model_path, outputh_path)
+    results = predict_groupsize(image_path, model_path, outputh_path)
     logger.debug(f"model output : {results}")
     score = Score(
         image_id=image_id,
@@ -530,12 +548,12 @@ def inference_test():
     # extract image name from image_path
     image_path = "./tests/static/test_photo.jpg"
     image_name = image_path.split("/")[-1]
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    input_path = os.path.join(current_dir, os.path.join("images", image_name))
+    # current_dir = os.path.dirname(os.path.abspath(__file__))
+    # input_path = os.path.join(current_dir, os.path.join("images", image_name))
     outputh_path = os.path.join(
-        current_dir, os.path.join("images_treated", image_name)
+        "./asf_mount_point/app_storage", os.path.join("images_treated", image_name)
     )  # TODO : be less dumb than this
-    results = predict_groupsize(input_path, model_path, outputh_path)
+    results = predict_groupsize(image_path, model_path, outputh_path)
     return results
 
 
@@ -573,12 +591,13 @@ def get_scores(user=Depends(get_current_user), db: Session = Depends(get_db)):
     json_result = json.loads(scores.to_json(orient="records"))
     return json_result
 
+
 @app.post("/detection_failure/")
 def remove_fail(
-    image_id = Form(...),
-    user : int = Depends(get_current_user),
-    db : Session = Depends(get_db) ):
-
+    image_id=Form(...),
+    user: int = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     image = db.query(Image).filter(Image.id == image_id).first()
     score = db.query(Score).filter(Score.image_id == image_id).first()
     db.delete(score)
@@ -587,9 +606,10 @@ def remove_fail(
     logger.warning(f"Deleted failed detection on image {image_id}")
     return
 
+
 @app.get("/health/")
 def health():
-    files = glob.glob("API/ml/runs/detection_*/labels/*.txt")
+    files = glob.glob("./asf_mount_point/app_storage/runs/detection_*/labels/*.txt")
     files.sort(key=lambda x: os.path.getmtime(x), reverse=True)
     last_50_files = files[:50]
     all_detections = []
