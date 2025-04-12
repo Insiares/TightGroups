@@ -11,7 +11,7 @@ def predict_groupsize(image_path: str, model_path: str, output_path: str):
     model = YOLO(model_path)
     now = datetime.datetime.now()
     filename = f"detection_{now.strftime('%Y-%m-%d_%H-%M-%S')}.txt"
-    outputdir = "./asf_mount_point/runs/"
+    outputdir = "./asf_mount_point/app_storage/runs/"
 
     if not os.path.exists(outputdir):
         os.makedirs(outputdir)

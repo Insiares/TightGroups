@@ -305,7 +305,7 @@ def refresh_token(refresh_token: str = Depends(oauth2_scheme)):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token"
         )
-
+       
     # new tokens
     new_access_token = create_access_token(data={"sub": str(username)})
     new_refresh_token = create_refresh_token(data={"sub": str(username)})
@@ -515,9 +515,9 @@ def inference(
         "./asf_mount_point/app_storage", os.path.join("images_treated", image_name)
     ) # That seems less dumb, but still dumb
     logger.debug(
-        f"called predict_groupsize with {model_path}, {input_path}, {outputh_path}"
+        f"called predict_groupsize with {model_path}, {image_path}, {outputh_path}"
     )
-    results = predict_groupsize(input_path, model_path, outputh_path)
+    results = predict_groupsize(image_path, model_path, outputh_path)
     logger.debug(f"model output : {results}")
     score = Score(
         image_id=image_id,
@@ -544,7 +544,7 @@ def inference_test():
     outputh_path = os.path.join(
         "./asf_mount_point/app_storage", os.path.join("images_treated", image_name)
     )  # TODO : be less dumb than this
-    results = predict_groupsize(input_path, model_path, outputh_path)
+    results = predict_groupsize(image_path, model_path, outputh_path)
     return results
 
 
@@ -598,7 +598,7 @@ def remove_fail(
 
 @app.get("/health/")
 def health():
-    files = glob.glob("API/ml/runs/detection_*/labels/*.txt")
+    files = glob.glob("./asf_mount_point/app_storage/runs/detection_*/labels/*.txt")
     files.sort(key=lambda x: os.path.getmtime(x), reverse=True)
     last_50_files = files[:50]
     all_detections = []
