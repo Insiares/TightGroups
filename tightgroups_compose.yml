@@ -72,33 +72,7 @@ properties:
           - name: azure-file-share
             mountPath: app/data/
 
-    - name: caddy
-      properties:
-        image: tightgroups.azurecr.io/caddy:latest
-        resources:
-          requests:
-            cpu: 0.5
-            memoryInGB: 0.5
-        ports:
-        - port: 80
-        - port: 443
-        volumeMounts:
-        - name: azure-file-share
-          mountPath: /shared
-        environment:
-          - name: "CADDY_ADAPTER"
-            value: "caddyfile"
-          - name:"CADDY_CONFIG"
-            value : "/shared/caddy/config/Caddyfile"
-        command:
-          - "usr/bin/caddy"
-          - "run"
-          - "--config"
-          - "/shared/caddy/config/Caddyfile"
-          - "--adapter"
-          - "caddyfile"
-
-    imageRegistryCredentials:
+  imageRegistryCredentials:
     - server: tightgroups.azurecr.io
       username: PLACEHOLDER_REGISTRY_USERNAME
       password: PLACEHOLDER_REGISTRY_PASSWORD
@@ -115,5 +89,5 @@ properties:
     type: public
     dnsNameLabel: tightgroups
     ports:
-      - port: 80
-      - port: 443
+      - port: 8501
+      - port: 3001

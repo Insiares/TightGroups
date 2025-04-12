@@ -49,7 +49,7 @@ def predict_groupsize(image_path: str, model_path: str, output_path: str):
 
     group_size_pixel = max(max_x - min_x, max_y - min_y)
     paper_size = 209.0
-    image_size = image_b.shape[0]
+    image_size = image.shape[0]
     mm_per_pixel = paper_size / image_size
 
     group_size = group_size_pixel * mm_per_pixel
