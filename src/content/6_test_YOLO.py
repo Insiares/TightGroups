@@ -4,7 +4,7 @@ from streamlit_webrtc import webrtc_streamer, VideoProcessorBase, RTCConfigurati
 from loguru import logger
 
 st.title("Testing Detection")
-model = YOLO("./target_detector_beta.pt")
+import_model = YOLO("./target_detector_beta.pt")
 if "captured_image" not in st.session_state:
     st.session_state.captured_image = None
 if "capturing" not in st.session_state:
@@ -23,9 +23,7 @@ def capture_callback(frame):
 
 class VideoProcessor(VideoProcessorBase):
     def __init__(self):
-        self.model = YOLO(
-            "/home/insia/Documents/Projects/target_detector/trarget_detector/train4/weights/best.pt"
-        )
+        self.model = import_model
         self.captured_requested = False
 
     def recv(self, frame):
