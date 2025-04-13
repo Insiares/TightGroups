@@ -447,6 +447,7 @@ def create_seance(
             wind_dir=seance.wind_dir,
             pressure=seance.pressure,
             precipitation=seance.precipitation,
+            created_at=seance.created_at
         )
         db.add(seance)
         db.commit()
