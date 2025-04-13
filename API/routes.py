@@ -270,6 +270,20 @@ def check_ammo(existing_ammo: dm.Ammo, db: Session = Depends(get_db)):
 def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
 ):
+    """
+    Authenticates a user and provides access and refresh tokens.
+
+    This endpoint validates user credentials and issues JWT tokens for API authentication.
+
+    Parameters:
+    - form_data (OAuth2PasswordRequestForm): Form containing username and password credentials
+
+    Returns:
+    - Token: Object containing access_token, refresh_token, user_id and token_type
+
+    Raises:
+    - HTTPException (401): If credentials are invalid with "Incorrect username or password" detail
+    """
     user = authenticate_user(form_data.username, form_data.password)
     logger.info(f"user logged : {user}")
 
@@ -299,6 +313,21 @@ def login_for_access_token(
 # @logger.catch()
 @app.post("/refresh", response_model=dm.Token)
 def refresh_token(refresh_token: str = Depends(oauth2_scheme)):
+    """
+    Issues a new access token and refresh token pair.
+
+    This endpoint validates the provided refresh token and issues new tokens.
+
+    Parameters:
+    - refresh_token (str): A valid refresh token from a previous login or refresh
+
+    Returns:
+    - Token: Object containing new access_token, refresh_token, user_id and token_type
+
+    Raises:
+    - HTTPException (401): If refresh token is invalid with "Invalid refresh token" detail
+    - HTTPException (403): If refresh token is blacklisted with "Token is blacklisted" detail
+    """
     if refresh_token in refresh_token_blacklsit:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Token is blacklisted"
@@ -335,7 +364,21 @@ def refresh_token(refresh_token: str = Depends(oauth2_scheme)):
 #     return current_user
 @app.post("/logout")
 def logout(token: str = Depends(oauth2_scheme), refresh_token: str = Body(...)):
-    """Invalidate the access token to log out the user."""
+    """
+    Invalidates the access and refresh tokens to log out the user.
+
+    This endpoint adds the provided tokens to blacklists to prevent their reuse.
+
+    Parameters:
+    - token (str): The current access token to invalidate
+    - refresh_token (str): The current refresh token to invalidate
+
+    Returns:
+    - dict: Confirmation message {"message": "Successfully logged out"}
+
+    Raises:
+    - HTTPException (400): If tokens are already revoked
+    """
     if token in token_blacklist:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Token is already revoked."
@@ -354,6 +397,20 @@ def logout(token: str = Depends(oauth2_scheme), refresh_token: str = Body(...)):
 
 @app.post("/users/", response_model=dm.User)
 def create_user(user: dm.UserCreate, db: Session = Depends(get_db)):
+    """
+    Registers a new user in the system.
+
+    This endpoint creates a new user account with hashed password.
+
+    Parameters:
+    - user (UserCreate): User data including username, email, and password
+
+    Returns:
+    - User: The created user object (without password)
+
+    Raises:
+    - HTTPException (400): If username already exists
+    """
     hashed_password = get_password_hash(user.password)
     user = User(email=user.email, username=user.username, password_hash=hashed_password)
     db.add(user)
@@ -366,6 +423,21 @@ def create_user(user: dm.UserCreate, db: Session = Depends(get_db)):
 def create_seance(
     seance: dm.MeteoData, user=Depends(get_current_user), db: Session = Depends(get_db)
 ):
+    """
+    Creates a new shooting session with meteorological data.
+
+    This endpoint records environmental conditions for a shooting session.
+
+    Parameters:
+    - seance (MeteoData): Meteorological and environmental data for the session
+    - user (dict): Current authenticated user information (from token)
+
+    Returns:
+    - Seance: The created session object with complete data
+
+    Raises:
+    - HTTPException: If there's an error creating the session
+    """
     try:
         seance = Seance(
             user_id=user["sub"],
@@ -379,7 +451,7 @@ def create_seance(
         db.add(seance)
         db.commit()
         db.refresh(seance)
-        # logger.info(f"Created seance {seance.id}")
+        logger.info(f"Created seance {seance.id}")
         return seance
     except Exception as e:
         logger.error(f"Error creating seance: {e}")
@@ -388,6 +460,17 @@ def create_seance(
 
 @app.get("/seances/")
 def get_seances(user=Depends(get_current_user), db: Session = Depends(get_db)):
+    """
+    Retrieves all shooting sessions for the current user.
+
+    This endpoint returns all recorded shooting sessions with their environmental data.
+
+    Parameters:
+    - user (dict): Current authenticated user information (from token)
+
+    Returns:
+    - List[Seance]: List of shooting session objects belonging to the user
+    """
     seances = db.query(Seance).filter(Seance.user_id == user["sub"]).all()
     return seances
 
@@ -396,8 +479,23 @@ def get_seances(user=Depends(get_current_user), db: Session = Depends(get_db)):
 def create_setup(
     setup: dm.Setup, user=Depends(get_current_user), db: Session = Depends(get_db)
 ):
+    """
+    Creates a new shooting setup configuration.
+
+    This endpoint records equipment, ammunition, position, and drill details for a shooting setup.
+
+    Parameters:
+    - setup (Setup): Setup configuration data including name, gear, ammo, position and drills
+    - user (dict): Current authenticated user information (from token)
+
+    Returns:
+    - Setup: The created setup configuration object
+
+    Raises:
+    - HTTPException: If there's an error creating the setup
+    """
     try:
-        # logger.debug(f"current user : {user}")
+        logger.debug(f"creation setup for current user : {user['sub']}")
         ammo_name = setup.ammo
         ammo_to_check = Ammo(name=ammo_name)
         ammo = check_ammo(ammo_to_check, db)
@@ -414,7 +512,7 @@ def create_setup(
         db.add(setup)
         db.commit()
         db.refresh(setup)
-        # logger.info(f"Created setup {setup.id}")
+        logger.info(f"Created setup {setup.id}")
         return setup
 
     except Exception as e:
@@ -425,8 +523,20 @@ def create_setup(
 # @logger.catch()
 @app.get("/setups/")
 def get_setups(user=Depends(get_current_user), db: Session = Depends(get_db)):
+    """
+    Retrieves all shooting setups for the current user.
+
+    This endpoint returns all shooting setups with associated ammunition details.
+
+    Parameters:
+    - user (dict): Current authenticated user information (from token)
+
+    Returns:
+    - List[dict]: List of setup objects with added ammo_name field
+                  Each dict contains all Setup model attributes plus the ammunition name
+    """
     # join ammo table to get ammo name
-    # logger.debug(f"Getting setups for user {user}")
+    logger.debug(f"Getting setups for user {user['sub']}")
     setups = (
         db.query(Setup)
         .add_column(Ammo.name.label("ammo_name"))
@@ -436,7 +546,6 @@ def get_setups(user=Depends(get_current_user), db: Session = Depends(get_db)):
     )
 
     # logger.debug(f"retrieve setup query : {[setup for setup in setups]}")
-    # setups = db.query(Setup).filter(Setup.user_id == user_id).all()
     result = [
         {
             **setup[0].__dict__,  # Setup model attributes
@@ -449,6 +558,17 @@ def get_setups(user=Depends(get_current_user), db: Session = Depends(get_db)):
 
 @app.get("/gears/")
 def get_gears(user=Depends(get_current_user), db: Session = Depends(get_db)):
+    """
+    Retrieves distinct gear configurations used by the current user.
+
+    This endpoint returns a list of unique gear setups the user has created.
+
+    Parameters:
+    - user (dict): Current authenticated user information (from token)
+
+    Returns:
+    - List[Setup]: List of unique Setup objects based on gear field
+    """
     gears = db.query(Setup).filter(Setup.user_id == user["sub"]).distinct(Setup.gear)
     return gears
 
@@ -461,7 +581,24 @@ def upload_image(
     user=Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    # file_path = f".//images/{file.filename}"
+    """
+    Uploads a target image for analysis.
+
+    This endpoint saves an uploaded image file and associates it with a specific
+    setup and session.
+
+    Parameters:
+    - setup_id (int): ID of the Setup associated with this image
+    - seance_id (int): ID of the Seance (shooting session) associated with this image
+    - file (UploadFile): The target image file to upload
+    - user (dict): Current authenticated user information (from token)
+
+    Returns:
+    - Image: The created Image object with metadata
+    """
+    logger.debug(
+        f"Uploading image for setup {setup_id} of seance {seance_id} for user : {user['sub']}"
+    )
     file_path = os.path.join(
         "./asf_mount_point/app_storage", os.path.join("images", file.filename)
     )
@@ -471,7 +608,6 @@ def upload_image(
 
         shutil.copyfileobj(file.file, image_file)
 
-        # image_file.write(await file.read())
     image = Image(seance_id=seance_id, setup_id=setup_id, file_path=file_path)
     db.add(image)
     db.commit()
@@ -481,7 +617,19 @@ def upload_image(
 
 @app.get("/users/images/")
 def get_user_images(user=Depends(get_current_user), db: Session = Depends(get_db)):
-    # logger.debug(f"Getting images for user {user_id}")
+    """
+    Retrieves all images uploaded by the current user.
+
+    This endpoint returns all target images associated with the user's setups.
+
+    Parameters:
+    - user (dict): Current authenticated user information (from token)
+
+    Returns:
+    - List[Image]: List of Image objects belonging to the user
+    """
+    logger.debug(f"Getting images for user {user['sub']}")
+
     images = db.query(Image).join(Setup).filter(Setup.user_id == user["sub"]).all()
     return images
 
@@ -490,6 +638,21 @@ def get_user_images(user=Depends(get_current_user), db: Session = Depends(get_db
 def get_image(
     image_id: int, user=Depends(get_current_user), db: Session = Depends(get_db)
 ):
+    """
+    Retrieves a specific processed image.
+
+    This endpoint returns the file path to a processed target image.
+
+    Parameters:
+    - image_id (int): ID of the Image to retrieve
+    - user (dict): Current authenticated user information (from token)
+
+    Returns:
+    - str: File path to the processed image
+
+    Raises:
+    - HTTPException (404): If the image is not found
+    """
     logger.debug(f"Getting image {image_id}")
     image = db.query(Image).filter(Image.id == image_id).first()
     image_treadted_path = image.file_path.replace("images", "images_treated")
@@ -505,20 +668,29 @@ def inference(
     user=Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    """
+    Performs target detection and group size calculation.
+
+    This endpoint runs the machine learning model to detect impacts and calculate
+    group size on a target image, then stores the results.
+
+    Parameters:
+    - seance_id (int): ID of the Seance associated with this analysis
+    - image_id (int): ID of the Image to analyze
+    - user (dict): Current authenticated user information (from token)
+
+    Returns:
+    - float: The calculated group size measurement
+
+    Notes:
+    - Creates a Score record with the results
+    - Processed image is saved to the images_treated directory
+    """
     logger.debug(f"Inference for seance {seance_id}")
     image_path = db.query(Image).filter(Image.id == image_id).first().file_path
-    # model_path = "./runs/detect/train16/weights/best.pt"
     model_path = "impact_detector_best.pt"
     # extract image name from image_path
-
     image_name = image_path.split("/")[-1]
-
-    # current_dir = os.path.dirname(os.path.abspath(__file__))
-    # logger.debug(f"Current directory: {current_dir}")
-    # input_path = os.path.join(current_dir, os.path.join("images", image_name))
-    # outputh_path = os.path.join(
-    #     current_dir, os.path.join("images_treated", image_name)
-    # )  # TODO : be less dumb than this
 
     outputh_path = os.path.join(
         "./asf_mount_point/app_storage", os.path.join("images_treated", image_name)
@@ -544,6 +716,14 @@ def inference(
 # @logger.catch
 @app.post("/inference/test/")
 def inference_test():
+    """
+    Test endpoint for the ML inference system.
+
+    This endpoint runs the target analysis model on a static test image to validate system health.
+
+    Returns:
+    - float: The calculated group size from the test image
+    """
     model_path = "impact_detector_best.pt"
     # extract image name from image_path
     image_path = "./tests/static/test_photo.jpg"
@@ -559,6 +739,24 @@ def inference_test():
 
 @app.get("/scores/")
 def get_scores(user=Depends(get_current_user), db: Session = Depends(get_db)):
+    """
+    Retrieves all shooting scores with associated setup details.
+
+    This endpoint returns comprehensive shooting performance data including
+    equipment setup, ammunition details (Ammo model), and environmental conditions (MeteoData).
+
+    Parameters:
+    - user (dict): Current authenticated user information (from token)
+    - db (Session): Database session dependency
+
+    Returns:
+    - List[dict]: List of dictionaries containing Score data joined with Setup, Ammo, and Seance information
+      Each record includes:
+      - score details (group_size, score_value)
+      - ammunition details (name, V_0, CB1)
+      - setup information (name, position, drills)
+      - environmental conditions (temp_C, wind_speed, pressure, precipitation, created_at)
+    """
     query_not_dumb = f"""
 
     SELECT scores.group_size
@@ -598,6 +796,19 @@ def remove_fail(
     user: int = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    """
+    Removes a failed target detection and associated data.
+
+    This endpoint deletes an Image record and its associated Score when detection was incorrect.
+
+    Parameters:
+    - image_id (int): ID of the Image with failed detection
+    - user (int): Current authenticated user ID (from token)
+    - db (Session): Database session dependency
+
+    Returns:
+    - None
+    """
     image = db.query(Image).filter(Image.id == image_id).first()
     score = db.query(Score).filter(Score.image_id == image_id).first()
     db.delete(score)
@@ -609,6 +820,16 @@ def remove_fail(
 
 @app.get("/health/")
 def health():
+    """
+    Checks the health of the target detection ML system.
+
+    This endpoint analyzes recent detection results to determine if the
+    ML system is functioning properly by checking detection counts and
+    confidence scores against predefined thresholds.
+
+    Returns:
+    - JSONResponse: Health status object with structure {"status": "healthy" | "unhealthy"}
+    """
     files = glob.glob("./asf_mount_point/app_storage/runs/detection_*/labels/*.txt")
     files.sort(key=lambda x: os.path.getmtime(x), reverse=True)
     last_50_files = files[:50]
