@@ -7,6 +7,8 @@ from components.auth import refresh_access_token
 
 if "image_id" not in st.session_state.keys():
     st.session_state.image_id = None
+if "deleted" not in st.session_state.keys():
+    st.session_state.deleted = False
 
 
 def upload(file, payload):
@@ -75,9 +77,6 @@ def handle_failure(image_id):
                 f"{Config.BACKEND_URL}/detection_failure/", headers=headers, data=data
             )
         if response.status_code == 200:
-            st.warning(
-                "Thanks for the feedback, your failed prediction run has been removed from your data."
-            )
             return response
         else:
             st.error("Image not found!")
@@ -189,3 +188,12 @@ if st.session_state.image_id:
             "Sorry to hear that! You can always retake the photo with improve lighting / focus"
         )
         handle_failure(st.session_state.image_id)
+        uploaded_file = None
+        st.session_state.image_id = None
+        st.session_state.deleted = True
+        st.rerun()
+
+if st.session_state.deleted and st.session_state.image_id is None:
+    st.warning(
+        "Sorry to hear that, your failed prediction run has been removed from your data. You can always retake the photo with improve lighting / focus"
+    )

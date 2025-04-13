@@ -1,24 +1,34 @@
 import streamlit as st
 from ultralytics import YOLO
-from streamlit_webrtc import webrtc_streamer, VideoProcessorBase, RTCConfiguration
+from streamlit_webrtc import webrtc_streamer, VideoProcessorBase
 from loguru import logger
+import av
+
 
 st.title("Testing Detection")
-import_model = YOLO("./target_detector_beta.pt")
+cache_key = "model_cache"
+if cache_key in st.session_state:
+    import_model = st.session_state[cache_key]
+else:
+    import_model = YOLO("./target_detector_beta.pt")
+    st.session_state[cache_key] = import_model
+
 if "captured_image" not in st.session_state:
     st.session_state.captured_image = None
 if "capturing" not in st.session_state:
     st.session_state.capturing = False
 
 
-def capture_callback(frame):
+def video_callback(frame: av.VideoFrame) -> av.VideoFrame:
     img = frame.to_ndarray(format="bgr24")
+    result = import_model.predict(img, vid_stride=25, verbose=False)
+    processed_frame = result[0].plot()
     logger.debug("callback running")
-    if st.session_state.capturing:
-        st.session_state.captured_image = img.copy()
-        st.session_state.capturing = False
-        logger.debug("image in session state")
-    return frame
+    # if st.session_state.capturing:
+    #     st.session_state.captured_image = img.copy()
+    #     st.session_state.capturing = False
+    #     logger.debug("image in session state")
+    return av.VideoFrame.from_ndarray(processed_frame, format="bgr24")
 
 
 class VideoProcessor(VideoProcessorBase):
@@ -48,15 +58,16 @@ class VideoProcessor(VideoProcessorBase):
 #
 
 
-rtc_config = RTCConfiguration(
-    {"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]}
-)
+# rtc_config = RTCConfiguration(
+#     {"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]}
+# )
 
 ctx = webrtc_streamer(
     key="Detect target",
     video_processor_factory=VideoProcessor,
-    rtc_configuration=rtc_config,
-    # video_frame_callback=capture_callback,
+    # rtc_configuration=rtc_config,
+    # mode = WebRtcMode.SENDRECV,
+    # video_frame_callback=video_callback,
     # async_processing=True,
     media_stream_constraints={"video": True, "audio": False},
 )

@@ -3,6 +3,7 @@ import cv2
 from loguru import logger
 import os
 import datetime
+import numpy as np
 from API.ml.scanner.scan import DocScanner
 
 
@@ -47,7 +48,8 @@ def predict_groupsize(image_path: str, model_path: str, output_path: str):
         min_y = min(min_y, y1)
         cv2.rectangle(image_c, (x1, y1), (x2, y2), (0, 255, 0), 1)
 
-    group_size_pixel = max(max_x - min_x, max_y - min_y)
+    # group_size_pixel = max(max_x - min_x, max_y - min_y) # Wow that was dumb
+    group_size_pixel = np.sqrt((max_x - min_x) ** 2 + (max_y - min_y) ** 2)
     paper_size = 209.0
     image_size = image_b.shape[0]
     mm_per_pixel = paper_size / image_size
