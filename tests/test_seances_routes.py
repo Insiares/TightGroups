@@ -12,6 +12,7 @@ def test_create_seance(mock_db):
     seance_data.wind_dir = "East"
     seance_data.pressure = 1010.0
     seance_data.precipitation = 0.0
+    seance_data.created_at = '2023-01-01'
 
     user = {"sub": "1"}
 
@@ -34,6 +35,7 @@ def test_create_seance(mock_db):
             wind_dir="East",
             pressure=1010.0,
             precipitation=0.0,
+            created_at='2023-01-01',
         )
         mock_db.add.assert_called_once_with(mock_seance)
         mock_db.commit.assert_called_once()
